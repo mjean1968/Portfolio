@@ -1,259 +1,547 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merlin Jean - Full Stack Developer & AI Engineer</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Merlin Jean — React Native Developer & AI Engineer</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a0a;color:#e0e0e0;overflow-x:hidden}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #0a0a0a;
-            overflow-x: hidden;
-        }
+/* NAV */
+nav{position:fixed;top:0;width:100%;background:rgba(10,10,10,.92);backdrop-filter:blur(12px);z-index:1000;border-bottom:1px solid #1a1a1a}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.nav-logo{font-size:20px;font-weight:800;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:#888;text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:#fff}
+.nav-links a.active{color:#a855f7}
+.nav-menu{display:none;background:none;border:none;color:#888;font-size:22px;cursor:pointer}
 
-        /* Hero Section */
-        .hero {
-            height: 100vh;
-            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            position: relative;
-        }
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 24px 40px;background:radial-gradient(ellipse at 50% 0%,rgba(168,85,247,.15) 0%,transparent 60%)}
+.hero-badge{display:inline-block;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);color:#a855f7;font-size:13px;padding:6px 16px;border-radius:20px;margin-bottom:24px;font-weight:500}
+.hero h1{font-size:clamp(2.4rem,6vw,4.5rem);font-weight:800;line-height:1.1;margin-bottom:20px;background:linear-gradient(135deg,#fff 0%,#a855f7 50%,#ec4899 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:clamp(1rem,2.5vw,1.25rem);color:#666;max-width:560px;margin:0 auto 36px;line-height:1.7}
+.hero-buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-primary{padding:14px 28px;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;transition:all .2s;border:none;cursor:pointer}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(168,85,247,.4)}
+.btn-outline{padding:14px 28px;background:none;border:1px solid #333;color:#e0e0e0;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;transition:all .2s}
+.btn-outline:hover{border-color:#a855f7;color:#a855f7}
+.hero-scroll{margin-top:60px;color:#333;font-size:13px;animation:bounce2 2s infinite}
+@keyframes bounce2{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+/* SECTIONS */
+.section{max-width:1100px;margin:0 auto;padding:100px 24px}
+.sec-label{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#a855f7;margin-bottom:12px;font-weight:600}
+.sec-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;color:#fff;margin-bottom:16px}
+.sec-sub{font-size:16px;color:#555;max-width:560px;line-height:1.7}
+.divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,#1e1e1e,transparent);margin:0}
 
-        .hero-content {
-            z-index: 2;
-            color: white;
-        }
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:60px}
+.about-text p{color:#777;font-size:16px;line-height:1.8;margin-bottom:16px}
+.about-text p span{color:#a855f7;font-weight:600}
+.about-links{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.about-links a{display:flex;align-items:center;gap:8px;color:#888;text-decoration:none;font-size:14px;padding:8px 14px;border:1px solid #222;border-radius:8px;transition:all .2s}
+.about-links a:hover{border-color:#a855f7;color:#a855f7}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.stat-card{background:#111;border:1px solid #1e1e1e;border-radius:16px;padding:28px;text-align:center;transition:border-color .2s}
+.stat-card:hover{border-color:#a855f7}
+.stat-num{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;margin-bottom:6px}
+.stat-lbl{font-size:13px;color:#555}
 
-        .hero h1 {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            animation: fadeInUp 1s ease-out;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+/* SKILLS */
+.skills-bg{background:#050505}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:60px}
+.skill-card{background:#111;border:1px solid #1e1e1e;border-radius:16px;padding:24px;transition:all .2s}
+.skill-card:hover{border-color:#a855f7;transform:translateY(-3px)}
+.skill-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.skill-icon{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(236,72,153,.2));display:flex;align-items:center;justify-content:center;font-size:18px;color:#a855f7}
+.skill-title{font-size:15px;font-weight:700;color:#fff}
+.skill-list{display:flex;flex-wrap:wrap;gap:8px}
+.skill-tag{font-size:12px;padding:4px 10px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2);border-radius:6px;color:#a855f7;font-weight:500}
 
-        .hero .subtitle {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            animation: fadeInUp 1s ease-out 0.5s both;
-            opacity: 0.9;
-        }
+/* PROJECTS */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-top:60px}
+.project-card{background:#111;border:1px solid #1e1e1e;border-radius:20px;overflow:hidden;transition:all .25s}
+.project-card:hover{border-color:#a855f7;transform:translateY(-4px);box-shadow:0 20px 40px rgba(168,85,247,.1)}
+.project-banner{height:6px;background:linear-gradient(90deg,#a855f7,#ec4899)}
+.project-body{padding:28px}
+.project-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a855f7;margin-bottom:10px;font-weight:600}
+.project-name{font-size:20px;font-weight:800;color:#fff;margin-bottom:12px}
+.project-desc{font-size:14px;color:#555;line-height:1.7;margin-bottom:20px}
+.project-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.project-tag{font-size:11px;padding:3px 10px;background:#0d0d0d;border:1px solid #222;border-radius:5px;color:#666}
+.project-links{display:flex;gap:10px}
+.project-link{font-size:13px;color:#888;text-decoration:none;display:flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid #222;border-radius:8px;transition:all .2s}
+.project-link:hover{border-color:#a855f7;color:#a855f7}
 
-        .hero .cta-button {
-            display: inline-block;
-            padding: 15px 30px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid white;
-            color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            animation: fadeInUp 1s ease-out 1s both;
-            backdrop-filter: blur(10px);
-        }
+/* EXPERIENCE */
+.exp-timeline{margin-top:60px;position:relative}
+.exp-timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#a855f7,#ec4899,transparent)}
+.exp-item{display:flex;gap:32px;margin-bottom:48px;padding-left:52px;position:relative}
+.exp-dot{position:absolute;left:12px;top:6px;width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#ec4899);border:3px solid #0a0a0a;flex-shrink:0}
+.exp-content{flex:1}
+.exp-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+.exp-company{font-size:14px;color:#a855f7;font-weight:600;margin-bottom:4px}
+.exp-date{font-size:13px;color:#444;margin-bottom:14px}
+.exp-desc{font-size:14px;color:#555;line-height:1.8}
+.exp-desc li{margin-bottom:6px;padding-left:4px}
 
-        .hero .cta-button:hover {
-            background: white;
-            color: #333;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
+/* EDUCATION */
+.edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:60px}
+.edu-card{background:#111;border:1px solid #1e1e1e;border-radius:16px;padding:28px;transition:border-color .2s}
+.edu-card:hover{border-color:#a855f7}
+.edu-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#a855f7,#ec4899);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;margin-bottom:18px}
+.edu-degree{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
+.edu-school{font-size:14px;color:#a855f7;font-weight:600;margin-bottom:4px}
+.edu-date{font-size:13px;color:#444;margin-bottom:14px}
+.edu-detail{font-size:13px;color:#555;line-height:1.7}
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+/* CONTACT */
+.contact-bg{background:#050505}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:60px;align-items:start}
+.contact-info p{color:#555;font-size:15px;line-height:1.8;margin-bottom:32px}
+.contact-items{display:flex;flex-direction:column;gap:14px}
+.contact-item{display:flex;align-items:center;gap:14px;color:#777;font-size:14px;text-decoration:none;transition:color .2s}
+.contact-item:hover{color:#a855f7}
+.contact-item-icon{width:40px;height:40px;border-radius:10px;background:#111;border:1px solid #1e1e1e;display:flex;align-items:center;justify-content:center;color:#a855f7;font-size:16px;flex-shrink:0;transition:all .2s}
+.contact-item:hover .contact-item-icon{border-color:#a855f7;background:rgba(168,85,247,.1)}
+.contact-form{display:flex;flex-direction:column;gap:14px}
+.contact-form input,.contact-form textarea{background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:14px 16px;color:#e0e0e0;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;resize:none}
+.contact-form input:focus,.contact-form textarea:focus{border-color:#a855f7}
+.contact-form input::placeholder,.contact-form textarea::placeholder{color:#333}
+.contact-form textarea{height:120px}
+.contact-form button{padding:14px;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s;font-family:inherit}
+.contact-form button:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(168,85,247,.4)}
 
-        /* Navigation */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
+/* FOOTER */
+footer{border-top:1px solid #111;padding:40px 24px;text-align:center}
+.footer-inner{max-width:1100px;margin:0 auto}
+.footer-logo{font-size:22px;font-weight:800;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+.footer-socials{display:flex;justify-content:center;gap:16px;margin-bottom:20px}
+.footer-socials a{width:40px;height:40px;border-radius:10px;background:#111;border:1px solid #1e1e1e;display:flex;align-items:center;justify-content:center;color:#555;text-decoration:none;font-size:16px;transition:all .2s}
+.footer-socials a:hover{border-color:#a855f7;color:#a855f7}
+.footer-copy{font-size:13px;color:#333}
 
-        nav ul {
-            display: flex;
-            justify-content: center;
-            list-style: none;
-            padding: 1rem 0;
-        }
+/* RESPONSIVE */
+@media(max-width:768px){
+  .nav-links{display:none}
+  .nav-menu{display:block}
+  .nav-links.open{display:flex;flex-direction:column;position:fixed;top:56px;left:0;right:0;background:#0a0a0a;padding:20px 24px;border-bottom:1px solid #1a1a1a;gap:16px}
+  .about-grid,.contact-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .exp-item{padding-left:40px}
+  .hero h1{font-size:2.2rem}
+  .section{padding:70px 20px}
+}
+</style>
+</head>
+<body>
 
-        nav li {
-            margin: 0 1.5rem;
-        }
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo">MJ</div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-menu" id="navMenu" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
 
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-        }
+<!-- HERO -->
+<section class="hero" id="home">
+  <div>
+    <div class="hero-badge">Available for hire · Tampa, FL</div>
+    <h1>Merlin Jean</h1>
+    <p class="hero-sub">React Native Developer & AI Engineer building mobile apps, intelligent systems, and intuitive user experiences.</p>
+    <div class="hero-buttons">
+      <a href="#projects" class="btn-primary"><i class="fas fa-rocket" style="margin-right:8px"></i>View My Work</a>
+      <a href="#contact" class="btn-outline"><i class="fas fa-envelope" style="margin-right:8px"></i>Get In Touch</a>
+    </div>
+    <div class="hero-scroll"><i class="fas fa-chevron-down"></i></div>
+  </div>
+</section>
 
-        nav a:hover {
-            color: #f093fb;
-        }
+<div class="divider"></div>
 
-        nav a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(45deg, #f093fb, #f5576c);
-            transition: width 0.3s ease;
-        }
+<!-- ABOUT -->
+<div id="about">
+<div class="section">
+  <div class="sec-label">About Me</div>
+  <div class="sec-title">Building the future,<br>one app at a time</div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>I'm a <span>React Native Developer and AI Engineer</span> with a B.S. in Electronic Engineering from Florida A&M University. I specialize in building cross-platform mobile apps and integrating AI into real-world products.</p>
+      <p>My work spans from workforce management apps like <span>ThyShift</span> to AI-powered systems like the <span>L Operative</span> assistant — combining deep technical knowledge with a passion for clean, intuitive UI.</p>
+      <p>Former Army National Guard infantry specialist — I bring discipline, precision, and the ability to execute under pressure to every project I take on.</p>
+      <div class="about-links">
+        <a href="https://github.com/mjean1968" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+        <a href="https://www.linkedin.com/in/merlin-jean-73b788192/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        <a href="mailto:merlinjean3004@gmail.com"><i class="fas fa-envelope"></i> Email</a>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-num">3+</span><div class="stat-lbl">Years Building Apps</div></div>
+      <div class="stat-card"><span class="stat-num">5+</span><div class="stat-lbl">Projects Shipped</div></div>
+      <div class="stat-card"><span class="stat-num">B.S.</span><div class="stat-lbl">Electronic Engineering</div></div>
+      <div class="stat-card"><span class="stat-num">2</span><div class="stat-lbl">AI Systems Built</div></div>
+    </div>
+  </div>
+</div>
+</div>
 
-        nav a:hover::after {
-            width: 100%;
-        }
+<div class="divider"></div>
 
-        /* Sections */
-        section {
-            padding: 80px 0;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding-left: 20px;
-            padding-right: 20px;
-        }
+<!-- SKILLS -->
+<div class="skills-bg" id="skills">
+<div class="section">
+  <div class="sec-label">Skills</div>
+  <div class="sec-title">What I work with</div>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-icon"><i class="fas fa-mobile-alt"></i></div>
+        <div class="skill-title">Mobile Development</div>
+      </div>
+      <div class="skill-list">
+        <span class="skill-tag">React Native</span>
+        <span class="skill-tag">Expo GO</span>
+        <span class="skill-tag">iOS Development</span>
+        <span class="skill-tag">Expo Router</span>
+        <span class="skill-tag">EAS Build</span>
+        <span class="skill-tag">AsyncStorage</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-icon"><i class="fas fa-code"></i></div>
+        <div class="skill-title">Languages</div>
+      </div>
+      <div class="skill-list">
+        <span class="skill-tag">TypeScript</span>
+        <span class="skill-tag">JavaScript</span>
+        <span class="skill-tag">Python</span>
+        <span class="skill-tag">TSX / JSX</span>
+        <span class="skill-tag">Swift</span>
+        <span class="skill-tag">HTML / CSS</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-icon"><i class="fas fa-brain"></i></div>
+        <div class="skill-title">AI & Backend</div>
+      </div>
+      <div class="skill-list">
+        <span class="skill-tag">Claude API</span>
+        <span class="skill-tag">Flask</span>
+        <span class="skill-tag">Python AI</span>
+        <span class="skill-tag">Edge TTS</span>
+        <span class="skill-tag">REST APIs</span>
+        <span class="skill-tag">Firebase</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-icon"><i class="fas fa-tools"></i></div>
+        <div class="skill-title">Tools & Platforms</div>
+      </div>
+      <div class="skill-list">
+        <span class="skill-tag">PyCharm</span>
+        <span class="skill-tag">Xcode</span>
+        <span class="skill-tag">Git / GitHub</span>
+        <span class="skill-tag">ngrok</span>
+        <span class="skill-tag">VS Code</span>
+        <span class="skill-tag">Figma</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="skill-title">Architecture & UI</div>
+      </div>
+      <div class="skill-list">
+        <span class="skill-tag">Component Architecture</span>
+        <span class="skill-tag">UI Builder</span>
+        <span class="skill-tag">Context API</span>
+        <span class="skill-tag">Dark/Light Mode</span>
+        <span class="skill-tag">Safe Area</span>
+        <span class="skill-tag">Responsive Design</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-icon"><i class="fas fa-graduation-cap"></i></div>
+        <div class="skill-title">Engineering Background</div>
+      </div>
+      <div class="skill-list">
+        <span class="skill-tag">Electronic Engineering</span>
+        <span class="skill-tag">Digital Systems</span>
+        <span class="skill-tag">Circuit Analysis</span>
+        <span class="skill-tag">Signal Processing</span>
+        <span class="skill-tag">Problem Solving</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
 
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: white;
-            position: relative;
-        }
+<div class="divider"></div>
 
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
-            background: linear-gradient(45deg, #f093fb, #f5576c);
-            border-radius: 2px;
-        }
+<!-- PROJECTS -->
+<div id="projects">
+<div class="section">
+  <div class="sec-label">Projects</div>
+  <div class="sec-title">Things I've built</div>
+  <div class="projects-grid">
 
-        /* About Section */
-        .about {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-        }
+    <div class="project-card">
+      <div class="project-banner"></div>
+      <div class="project-body">
+        <div class="project-label">Mobile App · Workforce</div>
+        <div class="project-name">ThyShift</div>
+        <div class="project-desc">A full-featured React Native workforce management and professional social networking app. Features Firebase Auth, real-time messaging, job listings, team scheduling, and a global avatar system across 50+ demo users.</div>
+        <div class="project-tags">
+          <span class="project-tag">React Native</span>
+          <span class="project-tag">Expo</span>
+          <span class="project-tag">TypeScript</span>
+          <span class="project-tag">Firebase</span>
+          <span class="project-tag">Expo Router</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/mjean1968" target="_blank" class="project-link"><i class="fab fa-github"></i> Code</a>
+        </div>
+      </div>
+    </div>
 
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 3rem;
-            align-items: center;
-        }
+    <div class="project-card">
+      <div class="project-banner" style="background:linear-gradient(90deg,#1a1a2e,#16213e,#0f3460)"></div>
+      <div class="project-body">
+        <div class="project-label">AI System · Personal Assistant</div>
+        <div class="project-name">L Operative</div>
+        <div class="project-desc">An L Lawliet-themed AI operative with a Flask backend, voice synthesis via Edge TTS, Google Home casting, web search, resume generation, portfolio building, and a full PWA interface accessible from any device.</div>
+        <div class="project-tags">
+          <span class="project-tag">Python</span>
+          <span class="project-tag">Flask</span>
+          <span class="project-tag">Claude API</span>
+          <span class="project-tag">Edge TTS</span>
+          <span class="project-tag">PWA</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/mjean1968" target="_blank" class="project-link"><i class="fab fa-github"></i> Code</a>
+        </div>
+      </div>
+    </div>
 
-        .about-text {
-            color: white;
-            font-size: 1.1rem;
-            line-height: 1.8;
-        }
+    <div class="project-card">
+      <div class="project-banner" style="background:linear-gradient(90deg,#f59e0b,#ef4444)"></div>
+      <div class="project-body">
+        <div class="project-label">Mobile Game · Entertainment</div>
+        <div class="project-name">Hungry Critters</div>
+        <div class="project-desc">A cross-platform mobile game built with React Native and Expo. Features engaging gameplay mechanics, smooth animations, responsive controls, and local storage for game progress and achievements.</div>
+        <div class="project-tags">
+          <span class="project-tag">React Native</span>
+          <span class="project-tag">Expo</span>
+          <span class="project-tag">JavaScript</span>
+          <span class="project-tag">AsyncStorage</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/mjean1968" target="_blank" class="project-link"><i class="fab fa-github"></i> Code</a>
+        </div>
+      </div>
+    </div>
 
-        .about-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 2rem;
-        }
+  </div>
+</div>
+</div>
 
-        .stat-box {
-            background: rgba(255,255,255,0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+<div class="divider"></div>
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #f093fb;
-            margin-bottom: 0.5rem;
-        }
+<!-- EXPERIENCE -->
+<div id="experience">
+<div class="section">
+  <div class="sec-label">Experience</div>
+  <div class="sec-title">Where I've worked</div>
+  <div class="exp-timeline">
 
-        .stat-label {
-            color: white;
-            font-size: 1.1rem;
-        }
+    <div class="exp-item">
+      <div class="exp-dot"></div>
+      <div class="exp-content">
+        <div class="exp-title">Software Engineer & Mobile Developer</div>
+        <div class="exp-company">Freelance / Personal Projects</div>
+        <div class="exp-date">2021 — Present</div>
+        <div class="exp-desc">
+          <ul>
+            <li>Built ThyShift, a full workforce management React Native app with Firebase, real-time messaging, job listings, and 50+ demo users</li>
+            <li>Developed L Operative, an AI-powered personal assistant with Flask backend, Claude API, voice synthesis, and Google Home casting</li>
+            <li>Implemented responsive UI systems with dark/light mode, Dynamic Island support, and full safe area handling</li>
+            <li>Deployed apps via Expo EAS under account mjean1968 with production-ready architecture</li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
-        /* Skills Section */
-        .skills {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-        }
+    <div class="exp-item">
+      <div class="exp-dot"></div>
+      <div class="exp-content">
+        <div class="exp-title">Infantry Specialist</div>
+        <div class="exp-company">Army National Guard · Leesburg, FL</div>
+        <div class="exp-date">Dec 2020 — Jan 2023</div>
+        <div class="exp-desc">
+          <ul>
+            <li>Executed complex operations under pressure, building strong problem-solving and leadership skills</li>
+            <li>Collaborated in high-stakes team environments requiring precise communication and coordination</li>
+            <li>Developed attention to detail and ability to execute under strict deadlines</li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
-        .skills-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
+    <div class="exp-item">
+      <div class="exp-dot"></div>
+      <div class="exp-content">
+        <div class="exp-title">Equipment Maintenance Technician</div>
+        <div class="exp-company">Previous Role</div>
+        <div class="exp-date">2020 — 2021</div>
+        <div class="exp-desc">
+          <ul>
+            <li>Diagnosed and resolved complex equipment failures using advanced diagnostic tools</li>
+            <li>Applied electrical and mechanical engineering principles to develop maintenance solutions</li>
+            <li>Maintained detailed technical documentation and performance metrics</li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
-        .skill-item {
-            background: rgba(255,255,255,0.1);
-            padding: 1.5rem;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+  </div>
 
-        .skill-name {
-            color: white;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+  <!-- Education inline -->
+  <div style="margin-top:80px">
+    <div class="sec-label">Education</div>
+    <div class="sec-title">Academic background</div>
+    <div class="edu-grid">
+      <div class="edu-card">
+        <div class="edu-icon"><i class="fas fa-graduation-cap"></i></div>
+        <div class="edu-degree">B.S. Electronic Engineering</div>
+        <div class="edu-school">Florida A&M University</div>
+        <div class="edu-date">Tallahassee, FL · 2024</div>
+        <div class="edu-detail">Digital Systems · Circuit Analysis · Programming · Signal Processing<br><br>NSBE · IEEE · National Society of Pershing Rifles</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
 
-        .skill-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 4px;
-            overflow: hidden;
-        }
+<div class="divider"></div>
 
-        .skill-progress {
-            height: 100%;
-            background: linear-gradient(45deg, #f093fb, #f5576c);
-            border-radius: 4px;
-            animation: skillLoad 2s ease-in-out;
-        }
+<!-- CONTACT -->
+<div class="contact-bg" id="contact">
+<div class="section">
+  <div class="sec-label">Contact</div>
+  <div class="sec-title">Let's work together</div>
+  <div class="contact-grid">
+    <div class="contact-info">
+      <p>I'm currently open to React Native, mobile developer, and AI engineer roles. If you have an opportunity or just want to connect, reach out — I respond fast.</p>
+      <div class="contact-items">
+        <a href="mailto:merlinjean3004@gmail.com" class="contact-item">
+          <div class="contact-item-icon"><i class="fas fa-envelope"></i></div>
+          merlinjean3004@gmail.com
+        </a>
+        <a href="tel:8164606060" class="contact-item">
+          <div class="contact-item-icon"><i class="fas fa-phone"></i></div>
+          (816) 460-6060
+        </a>
+        <a href="https://www.linkedin.com/in/merlin-jean-73b788192/" target="_blank" class="contact-item">
+          <div class="contact-item-icon"><i class="fab fa-linkedin"></i></div>
+          linkedin.com/in/merlin-jean
+        </a>
+        <a href="https://github.com/mjean1968" target="_blank" class="contact-item">
+          <div class="contact-item-icon"><i class="fab fa-github"></i></div>
+          github.com/mjean1968
+        </a>
+        <a class="contact-item">
+          <div class="contact-item-icon"><i class="fas fa-map-marker-alt"></i></div>
+          Tampa, FL 33617
+        </a>
+      </div>
+    </div>
+    <div class="contact-form">
+      <input type="text" placeholder="Your name" id="cf-name"/>
+      <input type="email" placeholder="Your email" id="cf-email"/>
+      <input type="text" placeholder="Subject" id="cf-subject"/>
+      <textarea placeholder="Your message..." id="cf-message"></textarea>
+      <button onclick="sendMessage()">Send Message <i class="fas fa-paper-plane" style="margin-left:8px"></i></button>
+      <div id="cf-status" style="font-size:13px;color:#a855f7;text-align:center;min-height:20px"></div>
+    </div>
+  </div>
+</div>
+</div>
 
-        @keyframes skillLoad {
-            from {
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Merlin Jean</div>
+    <div class="footer-socials">
+      <a href="https://github.com/mjean1968" target="_blank"><i class="fab fa-github"></i></a>
+      <a href="https://www.linkedin.com/in/merlin-jean-73b788192/" target="_blank"><i class="fab fa-linkedin"></i></a>
+      <a href="mailto:merlinjean3004@gmail.com"><i class="fas fa-envelope"></i></a>
+    </div>
+    <div class="footer-copy">© 2025 Merlin Jean · React Native Developer & AI Engineer · Tampa, FL</div>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(){
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+// Active nav on scroll
+window.addEventListener('scroll',function(){
+  var sections=['about','skills','projects','experience','contact'];
+  var scrollY=window.scrollY+80;
+  sections.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){
+      var top=el.offsetTop;
+      var bottom=top+el.offsetHeight;
+      var link=document.querySelector('nav a[href="#'+id+'"]');
+      if(link){
+        if(scrollY>=top&&scrollY<bottom) link.classList.add('active');
+        else link.classList.remove('active');
+      }
+    }
+  });
+});
+
+// Contact form
+function sendMessage(){
+  var name=document.getElementById('cf-name').value.trim();
+  var email=document.getElementById('cf-email').value.trim();
+  var subject=document.getElementById('cf-subject').value.trim();
+  var message=document.getElementById('cf-message').value.trim();
+  if(!name||!email||!message){document.getElementById('cf-status').textContent='Please fill in all fields.';return;}
+  var mailto='mailto:merlinjean3004@gmail.com?subject='+encodeURIComponent(subject||'Portfolio Contact')+'&body='+encodeURIComponent('From: '+name+' ('+email+')\n\n'+message);
+  window.location.href=mailto;
+  document.getElementById('cf-status').textContent='Opening your email client...';
+}
+
+// Animate elements on scroll
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}
+  });
+},{threshold:0.1});
+document.querySelectorAll('.skill-card,.project-card,.stat-card,.edu-card,.exp-item').forEach(function(el){
+  el.style.opacity='0';el.style.transform='translateY(24px)';el.style.transition='opacity .5s ease,transform .5s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
