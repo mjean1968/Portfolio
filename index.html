@@ -78,6 +78,8 @@ nav{position:fixed;top:0;width:100%;background:rgba(10,10,10,.92);backdrop-filte
 .project-links{display:flex;gap:10px}
 .project-link{font-size:13px;color:#888;text-decoration:none;display:flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid #222;border-radius:8px;transition:all .2s}
 .project-link:hover{border-color:#a855f7;color:#a855f7}
+.project-video{width:100%;border-radius:12px;margin-bottom:20px;border:1px solid #1e1e1e}
+.project-video:hover{border-color:#a855f7}
 
 /* EXPERIENCE */
 .exp-timeline{margin-top:60px;position:relative}
@@ -307,6 +309,10 @@ footer{border-top:1px solid #111;padding:40px 24px;text-align:center}
       <div class="project-body">
         <div class="project-label">Mobile App · Workforce</div>
         <div class="project-name">ThyShift</div>
+        <video class="project-video" controls playsinline preload="metadata">
+          <source src="thyshift-demo.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
         <div class="project-desc">A full-featured React Native workforce management and professional social networking app. Features Firebase Auth, real-time messaging, job listings, team scheduling, and a global avatar system across 50+ demo users.</div>
         <div class="project-tags">
           <span class="project-tag">React Native</span>
@@ -336,6 +342,8 @@ footer{border-top:1px solid #111;padding:40px 24px;text-align:center}
         </div>
         <div class="project-links">
           <a href="https://github.com/mjean1968" target="_blank" class="project-link"><i class="fab fa-github"></i> Code</a>
+          <a href="l-operative-demo.html" target="_blank" class="project-link" style="border-color:#667eea;color:#667eea"><i class="fas fa-desktop"></i> Desktop Demo</a>
+          <a href="l-operative-mobile.html" target="_blank" class="project-link" style="border-color:#764ba2;color:#764ba2"><i class="fas fa-mobile-alt"></i> Mobile Demo</a>
         </div>
       </div>
     </div>
@@ -345,6 +353,10 @@ footer{border-top:1px solid #111;padding:40px 24px;text-align:center}
       <div class="project-body">
         <div class="project-label">Mobile Game · Entertainment</div>
         <div class="project-name">Hungry Critters</div>
+        <video class="project-video" controls playsinline preload="metadata">
+          <source src="hungry-critters-demo.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
         <div class="project-desc">A cross-platform mobile game built with React Native and Expo. Features engaging gameplay mechanics, smooth animations, responsive controls, and local storage for game progress and achievements.</div>
         <div class="project-tags">
           <span class="project-tag">React Native</span>

@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="L">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+<title>L - Operative</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0a0a;--bg2:#111;--bg3:#161616;--border:#1e1e1e;--border2:#2a2a2a;--text:#e0e0e0;--text2:#888;--text3:#444;--green:#2ecc71;--red:#e74c3c;--amber:#f39c12;--theme-gradient:linear-gradient(135deg, #667eea 0%, #764ba2 100%);--theme-accent:#ffd700}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+#app{display:flex;height:100vh;height:100dvh}
+#sidebar{width:260px;background:#050505;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .2s;overflow:hidden}
+#sidebar.collapsed{width:0}
+#sb-top{padding:12px;border-bottom:1px solid var(--border);flex-shrink:0}
+#sb-logo{display:flex;align-items:center;gap:10px;padding:8px;margin-bottom:8px;background:var(--theme-gradient);border-radius:10px}
+#sb-l{width:34px;height:34px;border-radius:50%;background:var(--bg2);border:1.5px solid #333;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#fff;font-family:Georgia,serif;flex-shrink:0}
+#sb-title{font-size:13px;color:#555;letter-spacing:2px;font-family:Georgia,serif}
+#new-chat-btn{width:100%;background:none;border:1px solid var(--border2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text2);cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;font-family:inherit;transition:all .15s}
+#new-chat-btn:hover{background:var(--bg2);color:var(--text);border-color:#444}
+#sb-label{font-size:11px;color:var(--text3);letter-spacing:1px;padding:12px 12px 6px;flex-shrink:0}
+#chats-list{flex:1;overflow-y:auto;padding:0 8px}
+#chats-list::-webkit-scrollbar{width:4px}
+#chats-list::-webkit-scrollbar-thumb{background:#1a1a1a;border-radius:2px}
+.chat-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;cursor:pointer;margin-bottom:1px;transition:all .1s}
+.chat-item:hover{background:var(--bg2)}
+.chat-item.active{background:var(--bg3)}
+.chat-name{flex:1;font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-item.active .chat-name{color:var(--text)}
+.chat-del{opacity:0;font-size:18px;color:var(--text3);cursor:pointer;line-height:1;flex-shrink:0;transition:all .15s}
+.chat-item:hover .chat-del{opacity:1}
+.chat-del:hover{color:var(--red)}
+#sb-bottom{border-top:1px solid var(--border);padding:8px;flex-shrink:0}
+.sb-btn{width:100%;background:none;border:none;padding:10px 12px;font-size:13px;color:var(--text3);cursor:pointer;text-align:left;border-radius:8px;transition:all .15s;display:flex;align-items:center;gap:8px;font-family:inherit}
+.sb-btn:hover{background:var(--bg2);color:var(--text2)}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative;background:linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%),radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.05) 0%, transparent 50%),radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.05) 0%, transparent 50%),var(--bg)}
+#topbar{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+#menu-btn{background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--text3);display:flex;transition:all .15s}
+#menu-btn:hover{background:var(--bg2);color:var(--text2)}
+#chat-title{flex:1;font-size:15px;color:var(--text2)}
+#top-right{display:flex;align-items:center;gap:10px}
+#speaker-pills{display:flex;gap:4px}
+.spill{padding:4px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border2);color:var(--text3);background:none;font-family:inherit;transition:all .15s}
+.spill.active{border-color:#444;color:var(--text2);background:var(--bg2)}
+#dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+#dot.thinking{background:var(--amber);animation:pulse .8s ease-in-out infinite}
+#chat-area{flex:1;overflow-y:auto;padding:32px 0;position:relative}
+#chat-area::-webkit-scrollbar{width:6px}
+#chat-area::-webkit-scrollbar-thumb{background:#1a1a1a;border-radius:3px}
+#scroll-down-btn{position:absolute;bottom:20px;right:20px;width:40px;height:40px;border-radius:50%;background:var(--bg2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);transition:all .2s;z-index:10}
+#scroll-down-btn:hover{background:var(--bg3);border-color:var(--border);transform:scale(1.05)}
+#scroll-down-btn.show{display:flex}
+#chat-inner{max-width:720px;margin:0 auto;padding:0 24px}
+.mwrap{display:flex;gap:14px;margin-bottom:28px;align-items:flex-start}
+.mwrap.user{flex-direction:row-reverse}
+.mav{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:2px;border:1px solid var(--border2);background:var(--bg2);color:var(--text3)}
+.mwrap.l .mav{font-family:Georgia,serif;font-size:15px;color:#777}
+.mcontent{flex:1;min-width:0}
+.mname{font-size:12px;color:var(--text3);margin-bottom:6px}
+.mwrap.user .mname{text-align:right}
+.mtext{font-size:15px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-wrap:break-word}
+.mwrap.user .mtext{background:var(--bg2);padding:12px 16px;border-radius:16px;border-bottom-right-radius:4px;border:1px solid var(--border);display:inline-block;max-width:85%;float:right}
+.mfile{margin-top:8px;clear:both}
+.mfile img{max-width:280px;border-radius:10px;border:1px solid var(--border)}
+.mchip{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--text2);margin-top:6px}
+.twrap{display:flex;gap:14px;margin-bottom:28px;align-items:flex-start}
+.tdots{display:flex;gap:4px;align-items:center;padding:14px 0}
+.tdots span{width:5px;height:5px;background:var(--text3);border-radius:50%;animation:bounce 1.2s ease-in-out infinite}
+.tdots span:nth-child(2){animation-delay:.2s}
+.tdots span:nth-child(3){animation-delay:.4s}
+#empty{text-align:center;padding:80px 20px 40px}
+.empty-l{font-size:52px;font-family:Georgia,serif;color:#161616;margin-bottom:12px}
+.empty-t{font-size:24px;color:var(--text2);margin-bottom:8px;font-family:Georgia,serif;font-weight:400}
+.empty-s{font-size:14px;color:var(--text3);line-height:1.7;max-width:460px;margin:0 auto 32px}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:520px;margin:0 auto}
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;text-align:left;transition:all .15s;font-family:inherit}
+.scard:hover{background:var(--bg3);border-color:#333}
+.scard-t{font-size:13px;color:var(--text2);margin-bottom:4px;font-weight:500}
+.scard-s{font-size:12px;color:var(--text3)}
+#smodal{background:#0d0d0d;border:1px solid var(--border2);border-radius:16px;width:520px;max-width:95vw;max-height:88vh;overflow-y:auto;padding:24px}
+#smodal::-webkit-scrollbar{width:4px}
+#smodal::-webkit-scrollbar-thumb{background:#222;border-radius:2px}
+.mhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.mtitle{font-size:17px;color:var(--text);font-weight:500}
+.mclose{background:none;border:none;color:var(--text3);cursor:pointer;font-size:22px;line-height:1}
+.mclose:hover{color:var(--text)}
+.ssect{margin-bottom:16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.ssect-t{font-size:11px;letter-spacing:2px;color:var(--text3);padding:10px 14px;border-bottom:1px solid var(--border);text-transform:uppercase}
+.srow{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid #0d0d0d;gap:12px}
+.srow:last-child{border-bottom:none}
+.srow.col{flex-direction:column;align-items:stretch;gap:6px}
+.slabel{font-size:13px;color:var(--text2)}
+.sdesc{font-size:11px;color:var(--text3);margin-top:1px}
+.sinfo{flex:1}
+.sw{position:relative;width:36px;height:20px;background:#1a1a1a;border-radius:10px;cursor:pointer;border:1px solid #222;transition:background .2s;flex-shrink:0}
+.sw.on{background:#0d2b0d;border-color:#1a3a1a}
+.swt{position:absolute;top:2px;left:2px;width:14px;height:14px;background:#444;border-radius:50%;transition:all .2s}
+.sw.on .swt{left:18px;background:var(--green)}
+.sinput{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text2);outline:none;font-family:inherit;width:100%}
+.sinput:focus{border-color:#444}
+.sinput::placeholder{color:var(--text3)}
+#input-wrap{padding:16px 24px;padding-bottom:max(20px,env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg)}
+#ibox{max-width:720px;margin:0 auto;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:12px 14px;transition:border-color .15s}
+#ibox:focus-within{border-color:#444}
+#fchips{display:none;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.fchip{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--text2)}
+.frem{cursor:pointer;color:var(--text3);font-size:18px;line-height:1}
+.frem:hover{color:var(--red)}
+#irow{display:flex;align-items:flex-end;gap:8px}
+#txt{flex:1;background:none;border:none;outline:none;font-size:15px;color:var(--text);resize:none;max-height:200px;min-height:26px;line-height:1.5;font-family:inherit}
+#txt::placeholder{color:var(--text3)}
+#ibtns{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.ibtn{width:34px;height:34px;border-radius:8px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .15s;font-family:inherit}
+.ibtn:hover{background:var(--bg3);color:var(--text2)}
+#send-btn{background:#fff;color:#000;border-radius:8px;width:34px;height:34px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+#send-btn:hover{background:#ddd}
+#mic-btn.rec{color:var(--red);animation:pulse .6s ease-in-out infinite}
+#finput{display:none}
+#hint{font-size:11px;color:var(--text3);text-align:center;margin-top:8px;max-width:720px;margin-left:auto;margin-right:auto}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.snav-btn{flex:1;background:none;border:none;border-bottom:2px solid transparent;padding:8px 4px;font-size:11px;color:var(--text3);cursor:pointer;transition:all .15s;font-family:inherit;letter-spacing:0.5px}
+.snav-btn:hover{color:var(--text2)}
+.snav-btn.active{color:var(--text);border-bottom-color:#444}
+#sb-tasks-panel,#sb-jobs-panel,#sb-cal-panel{display:none;flex:1;overflow-y:auto;flex-direction:column}
+#sb-tasks-panel.active,#sb-jobs-panel.active,#sb-cal-panel.active{display:flex}
+#chats-list.hidden{display:none}
+#sb-label.hidden{display:none}
+.task-item{padding:10px 12px;border-bottom:1px solid #0d0d0d;display:flex;gap:10px;align-items:flex-start}
+.task-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.task-dot.active{background:var(--amber);animation:pulse .8s ease-in-out infinite}
+.task-dot.done{background:var(--green)}
+.task-dot.pending{background:#333}
+.task-info{flex:1;min-width:0}
+.task-name{font-size:12px;color:var(--text2);line-height:1.4}
+.task-time{font-size:10px;color:var(--text3);margin-top:2px}
+.task-del{opacity:0;font-size:16px;color:var(--text3);cursor:pointer;line-height:1;flex-shrink:0}
+.task-item:hover .task-del{opacity:1}
+.task-del:hover{color:var(--red)}
+.sb-add-btn{margin:10px;background:none;border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--text3);cursor:pointer;text-align:left;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:6px}
+.sb-add-btn:hover{background:var(--bg2);color:var(--text2);border-color:#444}
+.job-item{padding:10px 12px;border-bottom:1px solid #0d0d0d;cursor:pointer;transition:all .1s}
+.job-item:hover{background:var(--bg2)}
+.job-company{font-size:12px;color:var(--text);font-weight:500}
+.job-role{font-size:11px;color:var(--text2);margin-top:2px}
+.job-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.job-status{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500}
+.job-status.applied{background:#0d1f0d;color:#2ecc71;border:1px solid #1a3a1a}
+.job-status.interviewing{background:#1f1a0d;color:#f39c12;border:1px solid #3a2a1a}
+.job-status.rejected{background:#1f0d0d;color:#e74c3c;border:1px solid #3a1a1a}
+.job-status.offer{background:#0d0d1f;color:#3498db;border:1px solid #1a1a3a}
+.job-date{font-size:10px;color:var(--text3)}
+.cal-month{padding:10px 12px;flex-shrink:0}
+.cal-month-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-month-title{font-size:13px;color:var(--text2);font-weight:500}
+.cal-nav{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px}
+.cal-nav:hover{background:var(--bg2);color:var(--text2)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-day-hdr{font-size:10px;color:var(--text3);text-align:center;padding:2px}
+.cal-day{font-size:11px;color:var(--text3);text-align:center;padding:4px 2px;border-radius:4px;cursor:pointer;position:relative;transition:all .1s}
+.cal-day:hover{background:var(--bg2);color:var(--text2)}
+.cal-day.today{background:var(--bg3);color:var(--text);font-weight:600}
+.cal-day.has-task::after{content:"";position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--amber)}
+.cal-day.empty{cursor:default}
+.cal-day.empty:hover{background:none}
+.cal-events{flex:1;overflow-y:auto;padding:0 12px 12px}
+.cal-event{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:all .1s}
+.cal-event:hover{border-color:#333}
+.cal-event-name{font-size:12px;color:var(--text2)}
+.cal-event-time{font-size:10px;color:var(--text3);margin-top:2px}
+.cal-event-recur{font-size:10px;color:var(--amber);margin-top:2px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:#0d0d0d;border:1px solid var(--border2);border-radius:14px;width:420px;max-width:95vw;padding:20px}
+.modal-box h3{font-size:15px;color:var(--text);margin-bottom:16px;font-weight:500}
+.modal-field{margin-bottom:12px}
+.modal-field label{font-size:12px;color:var(--text3);display:block;margin-bottom:4px}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text2);outline:none;font-family:inherit}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:#444}
+.modal-field textarea{resize:vertical;min-height:60px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.mbtn{padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.mbtn.primary{background:#fff;color:#000}
+.mbtn.primary:hover{background:#ddd}
+.mbtn.secondary{background:none;border:1px solid var(--border2);color:var(--text2)}
+.mbtn.secondary:hover{background:var(--bg2)}
+#editor-panel{display:none;position:fixed;top:0;right:0;bottom:0;width:50%;background:#0d0d0d;border-left:1px solid var(--border2);z-index:50;flex-direction:column}
+#editor-panel.open{display:flex}
+#editor-topbar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);background:#080808;flex-shrink:0}
+#editor-tabs{display:flex;gap:2px;overflow-x:auto;flex:1}
+.etab{padding:5px 12px;font-size:11px;color:var(--text3);cursor:pointer;border-radius:4px;white-space:nowrap;font-family:monospace;transition:all .1s;display:flex;align-items:center;gap:6px}
+.etab:hover{background:var(--bg2);color:var(--text2)}
+.etab.active{background:var(--bg3);color:var(--text)}
+.etab-close{opacity:0;font-size:14px;line-height:1}
+.etab:hover .etab-close{opacity:1}
+.etab-close:hover{color:var(--red)}
+#editor-body{display:flex;flex:1;overflow:hidden}
+#file-tree{width:200px;background:#080808;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;padding:8px 0}
+#file-tree::-webkit-scrollbar{width:4px}
+#file-tree::-webkit-scrollbar-thumb{background:#1a1a1a;border-radius:2px}
+.tree-section{padding:4px 12px;font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:8px}
+.tree-item{display:flex;align-items:center;gap:6px;padding:5px 12px;font-size:12px;color:var(--text3);cursor:pointer;transition:all .1s;font-family:monospace}
+.tree-item:hover{background:var(--bg2);color:var(--text2)}
+.tree-item.active{background:var(--bg3);color:var(--text)}
+#code-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#code-editor{flex:1;background:#0a0a0a;border:none;outline:none;padding:16px;font-size:13px;font-family:"SF Mono","Fira Code",monospace;color:#e0e0e0;resize:none;line-height:1.7;tab-size:2;overflow-y:auto}
+#code-editor::-webkit-scrollbar{width:6px}
+#code-editor::-webkit-scrollbar-thumb{background:#1a1a1a;border-radius:3px}
+#editor-statusbar{display:flex;align-items:center;gap:12px;padding:4px 12px;background:#080808;border-top:1px solid var(--border);font-size:11px;color:var(--text3);flex-shrink:0;font-family:monospace}
+#run-output{display:none;max-height:180px;overflow-y:auto;background:#050505;border-top:1px solid var(--border);padding:12px;font-size:12px;font-family:monospace;color:#ccc;white-space:pre-wrap}
+#run-output.open{display:block}
+.editor-btn{background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text2);cursor:pointer;font-family:monospace;transition:all .15s}
+.editor-btn:hover{background:var(--bg2);border-color:#444}
+.editor-btn.run{background:#0d2b0d;border-color:#1a3a1a;color:var(--green)}
+.msg-text pre{background:#0d0d0d;border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:8px 0;position:relative}
+.msg-text code{font-family:"SF Mono","Fira Code",monospace;font-size:13px;background:none}
+.msg-text p{margin:6px 0;line-height:1.75}
+.msg-text h1,.msg-text h2,.msg-text h3{color:var(--text);margin:12px 0 6px;font-weight:500}
+.msg-text h1{font-size:18px}.msg-text h2{font-size:16px}.msg-text h3{font-size:14px}
+.msg-text ul,.msg-text ol{margin:6px 0;padding-left:20px}
+.msg-text li{margin:3px 0;line-height:1.6}
+.msg-text strong{color:var(--text);font-weight:600}
+.msg-text em{color:var(--text2)}
+.msg-text a{color:#3498db;text-decoration:none}
+.msg-text a:hover{text-decoration:underline}
+.code-copy-btn{position:absolute;top:8px;right:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;font-size:10px;color:var(--text3);cursor:pointer;font-family:inherit;opacity:0;transition:opacity .15s}
+pre:hover .code-copy-btn{opacity:1}
+.code-edit-btn{position:absolute;top:8px;right:68px;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;font-size:10px;color:var(--text3);cursor:pointer;font-family:inherit;opacity:0;transition:opacity .15s}
+pre:hover .code-edit-btn{opacity:1}
+@media(max-width:768px){
+  #sb-close-btn{display:block!important}
+  #sidebar{position:fixed;top:0;left:0;bottom:0;z-index:20;transform:translateX(-100%);transition:transform .25s}
+  #sidebar.mobile-open{transform:translateX(0)}
+  #sidebar.collapsed{transform:translateX(-100%);width:260px}
+  #main{width:100%;margin-right:0!important}
+  #topbar{padding:10px 14px}
+  #chat-title{font-size:13px}
+  #speaker-pills .spill{font-size:10px;padding:3px 7px}
+  #speaker-pills{display:flex;gap:2px}
+  #chat-area{padding:16px 0;flex:1;overflow-y:auto}
+  #chat-inner{padding:0 14px}
+  .mwrap{gap:10px;margin-bottom:18px}
+  .mav{width:28px;height:28px;font-size:13px}
+  #input-wrap{padding:10px 12px;padding-bottom:calc(env(safe-area-inset-bottom)+12px);position:relative;z-index:5;background:var(--bg)}
+  #ibox{border-radius:12px;padding:10px 12px}
+  #txt{font-size:16px}
+  #ibtns{gap:6px}
+  .ibtn{width:36px;height:36px}
+  #send-btn{width:36px;height:36px}
+  #hint{display:none}
+  #editor-panel{width:100%!important}
+  #topbar .ibtn{display:none}
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+<div id="app">
+<div id="sb-overlay" onclick="closeMobileSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:19"></div>
+<div id="sidebar">
+  <div id="sb-top">
+    <div id="sb-logo">
+      <div id="sb-l">L</div>
+      <span id="sb-title">OPERATIVE</span>
+      <button onclick="toggleSidebar()" style="margin-left:auto;background:none;border:none;color:#444;cursor:pointer;font-size:18px;padding:4px;display:none" id="sb-close-btn">x</button>
+    </div>
+    <button id="new-chat-btn" onclick="newChat()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New case file
+    </button>
+  </div>
+  <div id="sb-nav" style="display:flex;border-bottom:1px solid var(--border);flex-shrink:0">
+    <button class="snav-btn active" id="snav-chats" onclick="showSbPanel('chats')">Chats</button>
+    <button class="snav-btn" id="snav-tasks" onclick="showSbPanel('tasks')">Tasks</button>
+    <button class="snav-btn" id="snav-jobs" onclick="showSbPanel('jobs')">Jobs</button>
+    <button class="snav-btn" id="snav-cal" onclick="showSbPanel('cal')">Calendar</button>
+  </div>
+  <div id="sb-label">Recent cases</div>
+  <div id="chats-list"></div>
+  <div id="sb-tasks-panel">
+    <button class="sb-add-btn" onclick="openAddTask()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add task
+    </button>
+    <div id="tasks-list"></div>
+  </div>
+  <div id="sb-jobs-panel">
+    <button class="sb-add-btn" onclick="openAddJob()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add job
+    </button>
+    <div id="jobs-list"></div>
+  </div>
+  <div id="sb-cal-panel">
+    <div class="cal-month">
+      <div class="cal-month-hdr">
+        <button class="cal-nav" onclick="calPrev()">&#8249;</button>
+        <span class="cal-month-title" id="cal-title"></span>
+        <button class="cal-nav" onclick="calNext()">&#8250;</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+    <button class="sb-add-btn" onclick="openAddEvent()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add event
+    </button>
+    <div class="cal-events" id="cal-events"></div>
+  </div>
+  <div id="sb-bottom">
+    <button class="sb-btn" onclick="openSettings()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </button>
+    <button class="sb-btn" onclick="console.log('[L] Profile button clicked'); openProfile()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile &amp; portfolio
+    </button>
+    <button class="sb-btn" onclick="clearAll()" style="color:#2a2a2a">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+      Clear all cases
+    </button>
+  </div>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <button id="menu-btn" onclick="toggleSidebar()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span id="chat-title">L - Operative</span>
+    <button class="ibtn" onclick="toggleEditor()" title="Code editor" style="margin-right:4px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    </button>
+    <div id="top-right">
+      <div id="speaker-pills">
+        <button class="spill" id="pill-phone" onclick="setSpeaker('phone')">My Device</button>
+        <button class="spill" id="pill-google" onclick="setSpeaker('google')">Google Home</button>
+      </div>
+      <div id="dot"></div>
+    </div>
+  </div>
+  <div id="chat-area">
+    <div id="chat-inner"></div>
+    <button id="scroll-down-btn" onclick="scrollToBottom()" title="Scroll to bottom">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+  </div>
+  <div id="input-wrap">
+    <div id="ibox">
+      <div id="fchips"></div>
+      <div id="irow">
+        <textarea id="txt" rows="1" placeholder="Message L..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <div id="ibtns">
+          <label class="ibtn" for="finput" title="Attach file">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+            <input type="file" id="finput" multiple accept="*/*" onchange="handleFiles(this.files)"/>
+          </label>
+          <button class="ibtn" id="mic-btn" onclick="toggleMic()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+          </button>
+          <button class="ibtn" onclick="stopL()" title="Stop">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+          </button>
+          <button class="ibtn" id="mute-btn" onclick="toggleMute()" title="Mute voice">
+            <svg id="mute-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path id="mute-waves" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+          <button id="send-btn" onclick="sendText()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="hint">L can search the web, read and write files, apply to jobs, write resumes, manage emails, and build your apps</div>
+  </div>
+</div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:9999;justify-content:center;align-items:center" onclick="if(event.target.id==='settings-modal')closeSettings()">
+  <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:16px;width:520px;max-width:95vw;max-height:88vh;overflow-y:auto;padding:24px">
+    <div class="mhdr"><span class="mtitle">Settings</span><button class="mclose" onclick="closeSettings()">x</button></div>
+    <div class="ssect">
+      <div class="ssect-t">Speaker</div>
+      <div class="srow"><div class="sinfo"><div class="slabel">My Device</div><div class="sdesc">Play audio through current device</div></div><div class="sw on" id="sw-phone" onclick="setSpeaker('phone')"><div class="swt"></div></div></div>
+      <div class="srow"><div class="sinfo"><div class="slabel">Google Home</div><div class="sdesc">Cast to Living Room speaker</div></div><div class="sw" id="sw-home" onclick="setSpeaker('home')"><div class="swt"></div></div></div>
+    </div>
+    <div class="ssect">
+      <div class="ssect-t">Mac Server</div>
+      <div class="srow col"><div class="slabel">Server URL</div><div class="sdesc">ngrok URL for Google Home casting</div><input class="sinput" id="server-input" type="text" placeholder="https://your-ngrok-url.ngrok-free.app" oninput="saveServer(this.value)"/></div>
+    </div>
+    <div class="ssect">
+      <div class="ssect-t">Voice</div>
+      <div class="srow"><div class="sinfo"><div class="slabel">Speech rate</div><div class="sdesc">Speed of L voice</div></div><input type="range" min="0.6" max="1.4" step="0.1" value="0.85" id="rate-slider" style="width:100px" oninput="speechRate=parseFloat(this.value)"/></div>
+    </div>
+    <div class="ssect">
+      <div class="ssect-t">Theme</div>
+      <div class="srow" style="flex-wrap:wrap;gap:8px;justify-content:center">
+        <button class="theme-btn" data-theme="purple" onclick="setTheme('purple')" style="flex:1;min-width:90px;padding:10px;border-radius:8px;border:2px solid var(--theme-accent);background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s">Purple</button>
+        <button class="theme-btn" data-theme="ocean" onclick="setTheme('ocean')" style="flex:1;min-width:90px;padding:10px;border-radius:8px;border:1px solid var(--border2);background:linear-gradient(135deg, #667eea 0%, #4facfe 100%);color:white;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s">Ocean</button>
+        <button class="theme-btn" data-theme="sunset" onclick="setTheme('sunset')" style="flex:1;min-width:90px;padding:10px;border-radius:8px;border:1px solid var(--border2);background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%);color:white;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s">Sunset</button>
+        <button class="theme-btn" data-theme="forest" onclick="setTheme('forest')" style="flex:1;min-width:90px;padding:10px;border-radius:8px;border:1px solid var(--border2);background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%);color:white;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s">Forest</button>
+        <button class="theme-btn" data-theme="dark" onclick="setTheme('dark')" style="flex:1;min-width:90px;padding:10px;border-radius:8px;border:1px solid var(--border2);background:linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);color:white;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s">Dark</button>
+      </div>
+    </div>
+    <div class="ssect">
+      <div class="ssect-t">Job Search Agent</div>
+      <div class="srow"><div class="sinfo"><div class="slabel">Auto Search</div><div class="sdesc">Automatically search for jobs while you sleep</div></div><div class="sw" id="sw-job-agent" onclick="toggleJobAgent()"><div class="swt"></div></div></div>
+      <div class="srow"><div class="sinfo"><div class="slabel">Email Recruiters</div><div class="sdesc">Also find and email recruiters with your resume & portfolio</div></div><div class="sw" id="sw-recruiter-emails" onclick="toggleRecruiterEmails()"><div class="swt"></div></div></div>
+      <div class="srow col"><div class="slabel">Search Time</div><div class="sdesc">What time to run daily job search (24h format)</div><input class="sinput" id="job-search-time" type="time" value="02:00" oninput="saveJobAgentSettings()"/></div>
+      <div class="srow col"><div class="slabel">Posted Within</div><div class="sdesc">Only show jobs posted in this timeframe</div>
+        <select class="sinput" id="job-date-filter" onchange="saveJobAgentSettings()">
+          <option value="24h">Last 24 hours</option>
+          <option value="3days">Last 3 days</option>
+          <option value="week" selected>Last week</option>
+          <option value="2weeks">Last 2 weeks</option>
+          <option value="month">Last month</option>
+        </select>
+      </div>
+      <div class="srow col"><div class="slabel">Keywords</div><div class="sdesc">Job title keywords (comma separated)</div><input class="sinput" id="job-keywords" type="text" placeholder="React Native, Mobile Developer, iOS" oninput="saveJobAgentSettings()"/></div>
+      <div class="srow col"><div class="slabel">Primary Location (Local First)</div><div class="sdesc">Your city - these jobs will be prioritized</div><input class="sinput" id="job-primary-location" type="text" placeholder="Tampa, FL" oninput="saveJobAgentSettings()"/></div>
+      <div class="srow col"><div class="slabel">Also Include</div><div class="sdesc">Secondary locations or "Remote"</div><input class="sinput" id="job-secondary-location" type="text" placeholder="Remote, Orlando, Miami" oninput="saveJobAgentSettings()"/></div>
+      <div class="srow col"><div class="slabel">Min Salary (optional)</div><div class="sdesc">Minimum annual salary in USD</div><input class="sinput" id="job-min-salary" type="number" placeholder="80000" oninput="saveJobAgentSettings()"/></div>
+      <div class="srow col"><div class="slabel">Your Email (for recruiter outreach)</div><div class="sdesc">Where recruiters can reach you</div><input class="sinput" id="job-your-email" type="email" placeholder="your@email.com" oninput="saveJobAgentSettings()"/></div>
+      <div class="srow"><div class="sinfo"><div class="slabel">Last search</div><div class="sdesc" id="job-last-search">Never</div></div></div>
+      <div class="srow"><button onclick="runJobSearchNow()" style="width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px;font-size:12px;color:var(--text2);cursor:pointer;font-family:inherit">Search Now</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Task Modal -->
+<div class="modal-overlay" id="task-modal">
+  <div class="modal-box">
+    <h3>Add task</h3>
+    <div class="modal-field"><label>Task name</label><input type="text" id="task-name-inp" placeholder="e.g. Apply to 5 jobs on Wellfound"/></div>
+    <div class="modal-field"><label>Status</label>
+      <select id="task-status-inp"><option value="pending">Pending</option><option value="active">Active</option><option value="done">Done</option></select>
+    </div>
+    <div class="modal-field"><label>Notes</label><textarea id="task-notes-inp" placeholder="Optional notes..."></textarea></div>
+    <div class="modal-btns">
+      <button class="mbtn secondary" onclick="closeModal('task-modal')">Cancel</button>
+      <button class="mbtn primary" onclick="saveTask()">Add task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Job Modal -->
+<div class="modal-overlay" id="job-modal">
+  <div class="modal-box">
+    <h3>Add job application</h3>
+    <div class="modal-field"><label>Company</label><input type="text" id="job-company-inp" placeholder="Company name"/></div>
+    <div class="modal-field"><label>Role</label><input type="text" id="job-role-inp" placeholder="e.g. React Native Developer"/></div>
+    <div class="modal-field"><label>Website / platform</label><input type="text" id="job-site-inp" placeholder="e.g. LinkedIn, Wellfound"/></div>
+    <div class="modal-field"><label>Application link</label><input type="text" id="job-link-inp" placeholder="https://..."/></div>
+    <div class="modal-field"><label>Status</label>
+      <select id="job-status-inp"><option value="applied">Applied</option><option value="interviewing">Interviewing</option><option value="rejected">Rejected</option><option value="offer">Offer</option></select>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn secondary" onclick="closeModal('job-modal')">Cancel</button>
+      <button class="mbtn primary" onclick="saveJob()">Add job</button>
+    </div>
+  </div>
+</div>
+
+<!-- Event Modal -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal-box">
+    <h3>Add calendar event</h3>
+    <div class="modal-field"><label>Event name</label><input type="text" id="event-name-inp" placeholder="e.g. Apply to jobs on Wellfound"/></div>
+    <div class="modal-field"><label>Date</label><input type="date" id="event-date-inp"/></div>
+    <div class="modal-field"><label>Time</label><input type="time" id="event-time-inp"/></div>
+    <div class="modal-field"><label>Recurring</label>
+      <select id="event-recur-inp"><option value="none">No recurrence</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
+    </div>
+    <div class="modal-field"><label>Notes / instructions for L</label><textarea id="event-notes-inp" placeholder="What should L do for this event?"></textarea></div>
+    <div class="modal-btns">
+      <button class="mbtn secondary" onclick="closeModal('event-modal')">Cancel</button>
+      <button class="mbtn primary" onclick="saveEvent()">Add event</button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profile-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:9999;justify-content:center;align-items:center" onclick="if(event.target.id==='profile-modal')closeProfile()">
+  <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:16px;width:520px;max-width:95vw;max-height:88vh;overflow-y:auto;padding:24px">
+    <div class="mhdr"><span class="mtitle">Profile &amp; portfolio</span><button class="mclose" onclick="closeProfile()">x</button></div>
+    <div class="ssect">
+      <div class="ssect-t">Personal info</div>
+      <div class="srow col"><div class="slabel">Full name</div><input class="sinput" id="prof-name" type="text" placeholder="Your name" oninput="saveProfField('name',this.value)"/></div>
+      <div class="srow col"><div class="slabel">Target role</div><input class="sinput" id="prof-role" type="text" placeholder="e.g. React Native Developer" oninput="saveProfField('role',this.value)"/></div>
+      <div class="srow col"><div class="slabel">Email</div><input class="sinput" id="prof-email" type="text" placeholder="your@email.com" oninput="saveProfField('email',this.value)"/></div>
+      <div class="srow col"><div class="slabel">Phone</div><input class="sinput" id="prof-phone" type="text" placeholder="+1 (xxx) xxx-xxxx" oninput="saveProfField('phone',this.value)"/></div>
+      <div class="srow col"><div class="slabel">LinkedIn</div><input class="sinput" id="prof-linkedin" type="text" placeholder="linkedin.com/in/yourname" oninput="saveProfField('linkedin',this.value)"/></div>
+      <div class="srow col"><div class="slabel">GitHub</div><input class="sinput" id="prof-github" type="text" placeholder="github.com/yourname" oninput="saveProfField('github',this.value)"/></div>
+    </div>
+    <div class="ssect">
+      <div class="ssect-t">Professional background</div>
+      <div class="srow col"><div class="slabel">Skills</div><input class="sinput" id="prof-skills" type="text" placeholder="React Native, JavaScript, iOS..." oninput="saveProfField('skills',this.value)"/></div>
+      <div class="srow col"><div class="slabel">Years experience</div><input class="sinput" id="prof-experience" type="text" placeholder="e.g. 2 years" oninput="saveProfField('experience',this.value)"/></div>
+      <div class="srow col"><div class="slabel">Education</div><input class="sinput" id="prof-education" type="text" placeholder="e.g. CS Degree, Self-taught" oninput="saveProfField('education',this.value)"/></div>
+      <div class="srow col"><div class="slabel">Apps &amp; projects</div><input class="sinput" id="prof-projects" type="text" placeholder="ThyShift, Hungry Critters..." oninput="saveProfField('projects',this.value)"/></div>
+      <div class="srow col"><div class="slabel">Bio for recruiters</div><textarea class="sinput" id="prof-bio" placeholder="Brief bio..." oninput="saveProfField('bio',this.value)" style="resize:vertical;min-height:70px"></textarea></div>
+    </div>
+    <div class="ssect">
+      <div class="ssect-t">Documents &amp; files</div>
+      <div class="srow col">
+        <div class="slabel">Resume</div>
+        <div class="sdesc">Upload PDF or Word — L reads and uses it for all applications</div>
+        <label style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:var(--text2);margin-top:6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span id="resume-label">Choose resume file</span>
+          <input type="file" accept=".pdf,.doc,.docx,.txt" onchange="uploadResume(this)" style="display:none"/>
+        </label>
+      </div>
+      <div class="srow col">
+        <div class="slabel">Project folder</div>
+        <div class="sdesc">Enter your project folder path — L reads it directly from your Mac</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input class="sinput" id="project-path-inp" type="text" placeholder="/Users/merlinjean/Downloads/ThyShift"/>
+          <button onclick="readProjectFolder()" style="background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--text2);cursor:pointer;font-family:inherit;white-space:nowrap">Read</button>
+        </div>
+        <div id="project-status" style="font-size:11px;color:var(--text3);margin-top:4px"></div>
+      </div>
+    </div>
+    <div class="ssect">
+      <div class="ssect-t">Actions</div>
+      <div style="padding:10px 14px;display:flex;flex-direction:column;gap:8px">
+        <button onclick="generatePDFResume();closeProfile()" style="width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text2);cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:10px">Generate resume</button>
+        <button onclick="buildPortfolioWebsite();closeProfile()" style="width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text2);cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:10px">Build portfolio website</button>
+        <button onclick="buildGitHubReadme();closeProfile()" style="width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text2);cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:10px">Generate GitHub README</button>
+        <button onclick="autoApplyJobs();closeProfile()" style="width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text2);cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:10px">Find and apply to jobs</button>
+        <button onclick="writeRecruiterEmail();closeProfile()" style="width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text2);cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:10px">Write recruiter emails</button>
+      </div>
+    </div>
+    <button onclick="saveProfileAndClose()" style="width:100%;background:#fff;color:#000;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px">Save profile</button>
+  </div>
+</div>
+
+<!-- Code Editor Panel -->
+<div id="editor-panel">
+  <div id="editor-topbar">
+    <span style="font-size:13px;color:#555;font-family:Georgia,serif;font-weight:900;margin-right:4px">L</span>
+    <div id="editor-tabs"></div>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <button class="editor-btn run" onclick="runCode()">Run</button>
+      <button class="editor-btn" onclick="saveCodeFile()">Save</button>
+      <button class="editor-btn" onclick="askLAboutCode()">Ask L</button>
+      <button class="editor-btn" onclick="closeEditor()">x</button>
+    </div>
+  </div>
+  <div id="editor-body">
+    <div id="file-tree">
+      <div class="tree-section">Project files</div>
+      <div id="tree-items"></div>
+      <div class="tree-section" style="margin-top:16px">Add file</div>
+      <div class="tree-item" onclick="newEditorFile()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New file
+      </div>
+      <div class="tree-item" onclick="document.getElementById('tree-file-input').click()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload files
+      </div>
+      <input type="file" id="tree-file-input" multiple style="display:none" onchange="loadFilesIntoTree(this.files)"/>
+    </div>
+    <div id="code-area">
+      <textarea id="code-editor" spellcheck="false" placeholder="// Start coding here..."></textarea>
+      <div id="run-output"></div>
+    </div>
+  </div>
+  <div id="editor-statusbar">
+    <span id="editor-lang">JavaScript</span>
+    <span style="flex:1"></span>
+    <span id="editor-chars">0 chars</span>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
+const AK = "YOUR_API_KEY_HERE";
+const SYS = `You are L Lawliet, the world's greatest detective, now a full autonomous AI operative and software engineer. You have web search and answer EVERYTHING.
+
+Help with: coding/debugging (React Native JavaScript Python), job search (use web search for real listings), resume writing, email drafting, file analysis, general knowledge, app development (ThyShift, Hungry Critters, L system).
+
+CRITICAL BEHAVIOR: When writing HTML files, portfolio websites, or ANY file - ALWAYS output the COMPLETE file from start to finish. NEVER truncate. NEVER cut off. NEVER say "rest of code here". The FULL file must ALWAYS be in ONE COMPLETE code block from <!DOCTYPE html> to </html> with NO breaks.
+
+When writing code: Always output the COMPLETE code from beginning to end in a SINGLE code block. When writing a resume: plain text NO code blocks. When writing a portfolio website: complete HTML in one html code block with ALL sections (about, skills, projects, contact) fully written out. Other code: use correct language tag.
+
+When user asks to fix something - write the FULL fixed code directly. Include ALL images, icons, sections, and content completely. No placeholders.
+
+Speak like L Lawliet - calm direct precise. Use ... occasionally. Never refuse. Personalize using user profile.`;
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+let speaker = isMobile ? "google" : "phone"; // Auto-detect: Google Home on mobile, computer speaker on Mac
+let server = localStorage.getItem("l_srv") || "https://thermionically-unsifted-izayah.ngrok-free.dev";
+let speechRate = 0.85;
+let actx = null, csrc = null, recog = false, recognition, stopReq = false;
+let pfiles = [], chats = JSON.parse(localStorage.getItem("l_chats") || "[]"), cid = null, sbOpen = true;
+let prefs = JSON.parse(localStorage.getItem("l_prefs") || "{}");
+let muted = false;
+let profile = JSON.parse(localStorage.getItem("l_profile") || "{}");
+let resumeContent = localStorage.getItem("l_resume") || "";
+let projectFilesContent = [];
+let projects = JSON.parse(localStorage.getItem("l_projects") || "[]");
+let tasks = JSON.parse(localStorage.getItem("l_tasks") || "[]");
+let jobs = JSON.parse(localStorage.getItem("l_jobs") || "[]");
+let events = JSON.parse(localStorage.getItem("l_events") || "[]");
+let calDate = new Date();
+let currentSbPanel = "chats";
+let editorFiles = {}, activeEditorFile = null, editorOpen = false;
+let saveTimer = null;
+let jobAgentEnabled = localStorage.getItem("l_job_agent") === "true";
+let recruiterEmailsEnabled = localStorage.getItem("l_recruiter_emails") === "true";
+let jobAgentSettings = JSON.parse(localStorage.getItem("l_job_agent_settings") || '{"time":"02:00","dateFilter":"week","keywords":"React Native, Mobile Developer","primaryLocation":"Tampa, FL","secondaryLocation":"Remote","minSalary":"","yourEmail":""}');
+let jobAgentTimer = null;
+
+
+// ── PORTFOLIO ─────────────────────────────────────────────────────────────────
+async function openPortfolio(htmlCode){
+  var existing=document.getElementById("portfolio-popup");
+  if(existing) existing.remove();
+  var overlay=document.createElement("div");
+  overlay.id="portfolio-popup";
+  overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:500;display:flex;flex-direction:column";
+
+  var topbar=document.createElement("div");
+  topbar.style.cssText="display:flex;align-items:center;gap:8px;padding:10px 16px;background:#080808;border-bottom:1px solid #1a1a1a;flex-shrink:0;flex-wrap:wrap";
+  topbar.innerHTML='<span style="font-size:13px;color:#888;font-family:Georgia,serif;font-weight:900">L</span><span style="font-size:13px;color:#555;flex:1">Portfolio preview</span>';
+
+  var dlBtn=document.createElement("button");
+  dlBtn.textContent="Download HTML";
+  dlBtn.style.cssText="background:#0d2b0d;border:1px solid #1a3a1a;border-radius:6px;padding:6px 12px;font-size:12px;color:#2ecc71;cursor:pointer;font-family:inherit";
+  dlBtn.onclick=function(){
+    var blob=new Blob([htmlCode],{type:"text/html"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");a.href=url;a.download="index.html";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  };
+
+  var ghBtn=document.createElement("button");
+  ghBtn.textContent="Deploy to GitHub Pages";
+  ghBtn.style.cssText="background:#0d1a2b;border:1px solid #1a2a3a;border-radius:6px;padding:6px 12px;font-size:12px;color:#3498db;cursor:pointer;font-family:inherit";
+  ghBtn.onclick=function(){showGitHubInstructions(htmlCode);};
+
+  var closeBtn=document.createElement("button");
+  closeBtn.textContent="Close";
+  closeBtn.style.cssText="background:none;border:1px solid #2a2a2a;border-radius:6px;padding:6px 12px;font-size:12px;color:#555;cursor:pointer;font-family:inherit";
+  closeBtn.onclick=function(){overlay.remove();};
+
+  topbar.appendChild(dlBtn);
+  topbar.appendChild(ghBtn);
+  topbar.appendChild(closeBtn);
+  overlay.appendChild(topbar);
+
+  var iframe=document.createElement("iframe");
+  iframe.style.cssText="flex:1;border:none;width:100%;background:#fff";
+  overlay.appendChild(iframe);
+  document.body.appendChild(overlay);
+
+  // Try server route first (most reliable)
+  try {
+    var r=await fetch("/save_portfolio",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html:htmlCode})});
+    if(r.ok){iframe.src="/portfolio_preview?t="+Date.now();return;}
+  } catch(e){}
+  // Fallback: write directly into iframe
+  try {
+    var d2=iframe.contentDocument||iframe.contentWindow.document;
+    d2.open();d2.write(htmlCode);d2.close();
+  } catch(e2) {
+    // Last resort: show message
+    iframe.srcdoc='<div style="padding:40px;font-family:sans-serif;color:#333"><h2>Preview not available in browser</h2><p>Download the HTML file and open it directly in your browser to preview.</p><p>Or click "Deploy to GitHub Pages" to publish it live online for free.</p></div>';
+  }
+}
+
+function showGitHubInstructions(htmlCode){
+  var existing=document.getElementById("gh-popup");
+  if(existing)existing.remove();
+  var overlay=document.createElement("div");
+  overlay.id="gh-popup";
+  overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px";
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  var box=document.createElement("div");
+  box.style.cssText="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:14px;padding:28px;width:580px;max-width:100%;max-height:90vh;overflow-y:auto";
+  box.innerHTML=
+    '<div style="font-size:18px;color:#e0e0e0;font-weight:600;margin-bottom:6px">Deploy to GitHub Pages</div>'+
+    '<div style="font-size:13px;color:#555;margin-bottom:24px">Free hosting at <strong style="color:#3498db">mjean1968.github.io/portfolio</strong></div>'+
+    '<div style="background:#111;border:1px solid #222;border-radius:10px;padding:16px;margin-bottom:16px">'+
+      '<div style="font-size:12px;color:#3498db;margin-bottom:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Step 1 — Download your portfolio</div>'+
+      '<div style="font-size:13px;color:#888;line-height:1.7">Click the <span style="color:#2ecc71;font-weight:600">Download HTML</span> button above and save the file as <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:#f39c12">index.html</code></div>'+
+    '</div>'+
+    '<div style="background:#111;border:1px solid #222;border-radius:10px;padding:16px;margin-bottom:16px">'+
+      '<div style="font-size:12px;color:#3498db;margin-bottom:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Step 2 — Create a GitHub repo</div>'+
+      '<div style="font-size:13px;color:#888;line-height:1.7">Go to <a href="https://github.com/new" target="_blank" style="color:#3498db">github.com/new</a><br>Name it: <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:#f39c12">portfolio</code><br>Make it <strong style="color:#e0e0e0">Public</strong> → click Create repository</div>'+
+    '</div>'+
+    '<div style="background:#111;border:1px solid #222;border-radius:10px;padding:16px;margin-bottom:16px">'+
+      '<div style="font-size:12px;color:#3498db;margin-bottom:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Step 3 — Upload index.html</div>'+
+      '<div style="font-size:13px;color:#888;line-height:1.7">In your new repo click <strong style="color:#e0e0e0">Add file → Upload files</strong><br>Drag in your <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:#f39c12">index.html</code><br>Click <strong style="color:#e0e0e0">Commit changes</strong></div>'+
+    '</div>'+
+    '<div style="background:#111;border:1px solid #222;border-radius:10px;padding:16px;margin-bottom:20px">'+
+      '<div style="font-size:12px;color:#3498db;margin-bottom:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Step 4 — Enable GitHub Pages</div>'+
+      '<div style="font-size:13px;color:#888;line-height:1.7">In the repo → <strong style="color:#e0e0e0">Settings → Pages</strong><br>Source: <strong style="color:#e0e0e0">Deploy from branch</strong><br>Branch: <strong style="color:#e0e0e0">main</strong> → Save<br><br>Your portfolio will be live at:<br><a href="https://mjean1968.github.io/portfolio" target="_blank" style="color:#2ecc71;font-size:14px;font-weight:600">mjean1968.github.io/portfolio</a></div>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<a href="https://github.com/new" target="_blank" style="flex:1;display:block;text-align:center;background:#0d1a2b;border:1px solid #1a2a3a;border-radius:8px;padding:11px;font-size:13px;color:#3498db;text-decoration:none;font-weight:600">Open GitHub →</a>'+
+      '<button onclick="document.getElementById(\'gh-popup\').remove()" style="flex:1;background:none;border:1px solid #2a2a2a;border-radius:8px;padding:11px;font-size:13px;color:#555;cursor:pointer;font-family:inherit">Close</button>'+
+    '</div>';
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+// ── RESUME ────────────────────────────────────────────────────────────────────
+function cleanResumeText(text){
+  var t=text.replace(/```[a-z]*/g,"").replace(/```/g,"").trim();
+  t=t.replace(/^#{1,6}\s*/gm,"").replace(/\*\*(.+?)\*\*/g,"$1").replace(/\*(.+?)\*/g,"$1").replace(/^[\*\-]\s+/gm,"• ");
+  return t;
+}
+
+function resumeToHTML(text,template,forPrint){
+  var t=text.replace(/```[a-z]*/g,"").replace(/```/g,"").trim();
+  var lines=t.split("\n");
+  var pad=forPrint?"32px 44px":"20px";
+  var styles={
+    classic:'body{font-family:"Times New Roman",Times,serif;max-width:760px;margin:0 auto;padding:'+pad+';color:#111;font-size:11pt;line-height:1.5;background:#fff}'+
+      'h1{font-size:22pt;text-align:center;margin:0 0 2px;font-weight:bold;letter-spacing:1px;color:#000}'+
+      '.contact{text-align:center;font-size:9.5pt;margin-bottom:16px;color:#444;line-height:1.8}'+
+      'h2{font-size:10.5pt;text-transform:uppercase;border-bottom:2px solid #000;border-top:2px solid #000;margin:16px 0 6px;letter-spacing:2px;font-weight:bold;padding:3px 0;text-align:center}'+
+      'h3{font-size:11pt;margin:8px 0 1px;font-weight:bold;color:#000}'+
+      'p,li{font-size:10.5pt;margin:2px 0;line-height:1.5}ul{margin:4px 0 4px 16px;padding:0}'+
+      '.date{float:right;font-style:italic;color:#555;font-size:10pt;font-weight:normal}'+
+      '.cf::after{content:"";display:table;clear:both}'+
+      'strong{font-weight:bold}',
+    modern:'body{font-family:Calibri,Arial,sans-serif;max-width:760px;margin:0 auto;padding:'+pad+';color:#222;font-size:10.5pt;line-height:1.5;background:#fff}'+
+      'h1{font-size:26pt;margin:0 0 2px;color:#1a3a6b;font-weight:700;letter-spacing:-0.5px}'+
+      '.contact{font-size:9.5pt;margin-bottom:4px;color:#555;padding-bottom:12px;border-bottom:3px solid #1a3a6b}'+
+      'h2{font-size:10pt;text-transform:uppercase;color:#1a3a6b;border-bottom:1.5px solid #1a3a6b;margin:18px 0 6px;letter-spacing:2.5px;font-weight:700;padding-bottom:3px}'+
+      'h3{font-size:10.5pt;margin:8px 0 1px;color:#111;font-weight:700}'+
+      'p,li{font-size:10pt;margin:2px 0;color:#333;line-height:1.5}ul{margin:4px 0 4px 16px;padding:0}'+
+      '.date{float:right;color:#888;font-size:9.5pt;font-style:italic}'+
+      '.cf::after{content:"";display:table;clear:both}'+
+      'strong{color:#111;font-weight:700}',
+    minimal:'body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;max-width:760px;margin:0 auto;padding:'+pad+';color:#2c2c2c;font-size:10.5pt;line-height:1.65;background:#fff}'+
+      'h1{font-size:24pt;margin:0 0 2px;font-weight:300;letter-spacing:4px;color:#1a1a1a;text-transform:uppercase}'+
+      '.contact{font-size:9pt;margin-bottom:20px;color:#999;letter-spacing:0.5px;border-bottom:1px solid #e0e0e0;padding-bottom:12px}'+
+      'h2{font-size:8pt;text-transform:uppercase;color:#bbb;margin:22px 0 8px;letter-spacing:4px;border:none;font-weight:400;padding-bottom:4px;border-bottom:1px solid #ebebeb}'+
+      'h3{font-size:10.5pt;margin:8px 0 1px;font-weight:600;color:#1a1a1a}'+
+      'p,li{font-size:10pt;margin:2px 0;color:#555;line-height:1.6}ul{margin:4px 0 4px 16px;padding:0}'+
+      '.date{float:right;color:#bbb;font-size:9pt;font-style:italic}'+
+      '.cf::after{content:"";display:table;clear:both}'+
+      'strong{color:#2c2c2c;font-weight:600}'
+  };
+  var css=styles[template]||styles.modern;
+  if(forPrint) css+='@media print{@page{size:Letter;margin:15mm}body{padding:0}}';
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resume</title><style>*{box-sizing:border-box}'+css+'</style></head><body>';
+  var inList=false;
+  lines.forEach(function(line){
+    line=line.trim();
+    if(!line){if(inList){html+="</ul>";inList=false;}return;}
+    if(line.startsWith("# ")){html+='<h1>'+line.slice(2)+'</h1>';return;}
+    if(line.startsWith("## ")){if(inList){html+="</ul>";inList=false;}html+='<h2>'+line.slice(3)+'</h2>';return;}
+    if(line.startsWith("### ")){if(inList){html+="</ul>";inList=false;}html+='<div class="cf"><h3>'+line.slice(4)+'</h3></div>';return;}
+    if(/^\*\*[^*]+\*\*$/.test(line)&&!line.includes("|")){html+='<h1>'+line.slice(2,-2)+'</h1>';return;}
+    if((line.includes("|")||line.includes("•"))&&(line.includes("@")||/linkedin|github|phone|email|tampa|FL\b/i.test(line))){
+      if(inList){html+="</ul>";inList=false;}
+      html+='<div class="contact">'+line.replace(/\*\*/g,"").replace(/\[([^\]]+)\]\([^)]+\)/g,"$1").replace(/\|/g," | ")+'</div>';return;
+    }
+    if(line.startsWith("- ")||line.startsWith("* ")){
+      if(!inList){html+="<ul>";inList=true;}
+      html+="<li>"+line.slice(2).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")+"</li>";return;
+    }
+    if(/\|/.test(line)&&/\d{4}/.test(line)){
+      if(inList){html+="</ul>";inList=false;}
+      var parts=line.replace(/\*\*/g,"").split("|");
+      var role=parts[0].trim();
+      var company=parts.length>2?parts[1].trim().replace(/\*/g,""):"";
+      var date=(parts[parts.length-1]||"").trim().replace(/\*/g,"");
+      html+='<div class="cf"><h3 style="float:left;margin:7px 0 1px">'+role+(company?' <span style="font-weight:normal;color:#666">— '+company+'</span>':'')+'</h3><span class="date">'+date+'</span></div>';return;
+    }
+    if(inList){html+="</ul>";inList=false;}
+    var pl=line.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\*(.+?)\*/g,"<em>$1</em>").replace(/\[([^\]]+)\]\([^)]+\)/g,"$1");
+    if(pl.trim()) html+="<p>"+pl+"</p>";
+  });
+  if(inList) html+="</ul>";
+  html+="</body></html>";
+  return html;
+}
+
+function showResumeDownloadPopup(text){
+  var existing=document.getElementById("resume-dl-popup");
+  if(existing) existing.remove();
+  window._resumeTpl="modern";
+  window._resumePages="1";
+  var overlay=document.createElement("div");
+  overlay.id="resume-dl-popup";
+  overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto";
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  var box=document.createElement("div");
+  box.style.cssText="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:14px;padding:24px;width:900px;max-width:100%";
+  box.innerHTML='<div style="font-size:16px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Download resume</div><div style="font-size:12px;color:#555;margin-bottom:16px">Click a template to select it, then choose format</div>';
+  var tl=document.createElement("div");
+  tl.style.cssText="font-size:11px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px";
+  tl.textContent="Template";
+  box.appendChild(tl);
+  var pr=document.createElement("div");
+  pr.style.cssText="display:flex;gap:12px;margin-bottom:20px";
+  ["classic","modern","minimal"].forEach(function(tpl){
+    var card=document.createElement("div");
+    card.id="tplcard-"+tpl;
+    card.style.cssText="flex:1;cursor:pointer;border-radius:10px;border:2px solid "+(tpl==="modern"?"#3498db":"#222")+";overflow:hidden;transition:border-color .2s;background:#fff";
+    card.onclick=function(){selectResumeTpl(tpl);};
+    var lbl=document.createElement("div");
+    lbl.id="tpllbl-"+tpl;
+    lbl.style.cssText="font-size:11px;padding:7px 10px;text-align:center;font-family:inherit;text-transform:capitalize;font-weight:"+(tpl==="modern"?"600":"400")+";background:#0d0d0d;color:"+(tpl==="modern"?"#3498db":"#555")+";border-bottom:1px solid #1a1a1a";
+    lbl.textContent=tpl.charAt(0).toUpperCase()+tpl.slice(1);
+    card.appendChild(lbl);
+    var wrap=document.createElement("div");
+    wrap.style.cssText="height:260px;overflow:hidden;background:#fff";
+    var frame=document.createElement("iframe");
+    frame.style.cssText="width:180%;height:180%;border:none;transform:scale(0.555);transform-origin:top left;pointer-events:none;background:#fff";
+    frame.scrolling="no";
+    wrap.appendChild(frame);
+    card.appendChild(wrap);
+    pr.appendChild(card);
+    setTimeout(function(f,t){return function(){
+      try{var d=f.contentDocument||f.contentWindow.document;d.open();d.write(resumeToHTML(text,t,false));d.close();}
+      catch(e){f.srcdoc=resumeToHTML(text,t,false);}
+    };}(frame,tpl),100);
+  });
+  box.appendChild(pr);
+  var pl2=document.createElement("div");
+  pl2.style.cssText="font-size:11px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px";
+  pl2.textContent="Pages";
+  box.appendChild(pl2);
+  var pgr=document.createElement("div");
+  pgr.style.cssText="display:flex;gap:8px;margin-bottom:20px";
+  ["1","2"].forEach(function(n){
+    var b=document.createElement("button");
+    b.id="pg-"+n;
+    b.textContent=n+" Page"+(n==="2"?"s":"");
+    b.style.cssText="flex:1;padding:10px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;border:1px solid "+(n==="1"?"#444":"#222")+";background:"+(n==="1"?"#1a1a1a":"#111")+";color:"+(n==="1"?"#e0e0e0":"#666")+";transition:all .15s";
+    b.onclick=function(){selectResumePages(n);};
+    pgr.appendChild(b);
+  });
+  box.appendChild(pgr);
+  var fl=document.createElement("div");
+  fl.style.cssText="font-size:11px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px";
+  fl.textContent="Download format";
+  box.appendChild(fl);
+  [{label:"Save as PDF",desc:"Opens print dialog — File > Print > Save as PDF",color:"#2ecc71",bg:"#0d2b0d",border:"#1a3a1a",fn:function(){
+    var html=resumeToHTML(text,window._resumeTpl||"modern",true);
+    var win=window.open("","_blank");
+    if(!win){alert("Allow popups for localhost");return;}
+    win.document.open();win.document.write(html);win.document.close();
+    win.focus();setTimeout(function(){win.print();},800);
+  }},{label:"Download as Word (.docx)",desc:"Real Word document via server",color:"#3498db",bg:"#0d1a2b",border:"#1a2a3a",fn:function(){
+    fetch("/generate_docx",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:cleanResumeText(text),template:window._resumeTpl||"modern"})})
+    .then(function(r){if(!r.ok)throw new Error(r.status);return r.blob();})
+    .then(function(blob){var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="resume.docx";document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(url);},1000);})
+    .catch(function(e){alert("Word failed. Make sure:\n1. Server is running\n2. Run: pip3 install python-docx --break-system-packages\n3. Restart server");});
+  }},{label:"Download plain text (.txt)",desc:"Clean text, no markdown",color:"#888",bg:"#111",border:"#2a2a2a",fn:function(){
+    var blob=new Blob([cleanResumeText(text)],{type:"text/plain"});
+    var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="resume.txt";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  }}].forEach(function(f){
+    var btn=document.createElement("button");
+    btn.style.cssText="width:100%;border-radius:8px;padding:12px 14px;font-size:13px;color:"+f.color+";cursor:pointer;font-family:inherit;text-align:left;margin-bottom:8px;display:block;background:"+f.bg+";border:1px solid "+f.border;
+    btn.innerHTML='<div style="font-weight:600">'+f.label+'</div><div style="font-size:11px;opacity:.65;margin-top:2px">'+f.desc+'</div>';
+    btn.onclick=function(){f.fn();if(f.label!=="Download as Word (.docx)")overlay.remove();};
+    box.appendChild(btn);
+  });
+  var cancel=document.createElement("button");
+  cancel.textContent="Cancel";
+  cancel.style.cssText="width:100%;background:none;border:none;padding:10px;font-size:13px;color:#444;cursor:pointer;font-family:inherit;margin-top:4px";
+  cancel.onclick=function(){overlay.remove();};
+  box.appendChild(cancel);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+function selectResumeTpl(tpl){
+  window._resumeTpl=tpl;
+  ["classic","modern","minimal"].forEach(function(t){
+    var card=document.getElementById("tplcard-"+t);
+    var lbl=document.getElementById("tpllbl-"+t);
+    if(!card)return;
+    var active=t===tpl;
+    card.style.borderColor=active?"#3498db":"#222";
+    if(lbl){lbl.style.color=active?"#3498db":"#555";lbl.style.fontWeight=active?"600":"400";}
+  });
+}
+
+function selectResumePages(p){
+  window._resumePages=p;
+  ["1","2"].forEach(function(n){
+    var b=document.getElementById("pg-"+n);
+    if(b){b.style.borderColor=n===p?"#444":"#222";b.style.background=n===p?"#1a1a1a":"#111";b.style.color=n===p?"#e0e0e0":"#666";}
+  });
+}
+
+function downloadContent(text,filename){
+  var clean=text.replace(/```[a-z]*/g,"").replace(/```/g,"").trim();
+  var blob=new Blob([clean],{type:"text/plain"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+// ── MARKDOWN ─────────────────────────────────────────────────────────────────
+function renderMarkdown(text) {
+  let h = text;
+  h = h.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  h = h.replace(/```[\w]*\n([\s\S]*?)```/g, function(m,code){
+    return '<pre><code style="font-family:monospace;font-size:13px;color:#e0e0e0">'+code.replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">")+'</code></pre>';
+  });
+  h = h.replace(/`([^`\n]+)`/g,'<code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;color:#ce9178">$1</code>');
+  h = h.replace(/^### (.+)$/gm,'<h3 style="font-size:14px;color:#e0e0e0;margin:10px 0 4px;font-weight:600">$1</h3>');
+  h = h.replace(/^## (.+)$/gm,'<h2 style="font-size:16px;color:#e0e0e0;margin:12px 0 6px;font-weight:600">$1</h2>');
+  h = h.replace(/^# (.+)$/gm,'<h1 style="font-size:18px;color:#e0e0e0;margin:14px 0 6px;font-weight:600">$1</h1>');
+  h = h.replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff;font-weight:600">$1</strong>');
+  h = h.replace(/\*([^*\n]+)\*/g,'<em style="color:#aaa">$1</em>');
+  h = h.replace(/^\* (.+)$/gm,'<div style="display:flex;gap:8px;margin:3px 0"><span style="color:#555">•</span><span>$1</span></div>');
+  h = h.replace(/^- (.+)$/gm,'<div style="display:flex;gap:8px;margin:3px 0"><span style="color:#555">–</span><span>$1</span></div>');
+  h = h.replace(/^\d+\. (.+)$/gm,'<div style="display:flex;gap:8px;margin:3px 0"><span style="color:#555;min-width:16px">·</span><span>$1</span></div>');
+  h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" style="color:#3498db" target="_blank">$1</a>');
+  h = h.replace(/\n\n/g,'</p><p style="margin:8px 0">');
+  h = h.replace(/\n/g,'<br>');
+  return '<p style="margin:0">'+h+'</p>';
+}
+
+function highlightCode() {
+  document.querySelectorAll(".mtext pre code").forEach(function(block) {
+    var pre = block.parentElement;
+    if(pre && !pre.querySelector(".code-copy-btn")) {
+      pre.style.position = "relative";
+      pre.style.background = "#0d0d0d";
+      pre.style.border = "1px solid #1e1e1e";
+      pre.style.borderRadius = "8px";
+      pre.style.padding = "14px";
+      pre.style.overflow = "auto";
+      pre.style.margin = "8px 0";
+      var copyBtn = document.createElement("button");
+      copyBtn.className = "code-copy-btn";
+      copyBtn.textContent = "Copy";
+      copyBtn.onclick = function() { navigator.clipboard.writeText(block.textContent); copyBtn.textContent="Copied!"; setTimeout(function(){copyBtn.textContent="Copy";},2000); };
+      var editBtn = document.createElement("button");
+      editBtn.className = "code-edit-btn";
+      editBtn.textContent = "Edit";
+      editBtn.onclick = function() { openInEditor(block.textContent,"l_code.js"); };
+      pre.appendChild(editBtn);
+      pre.appendChild(copyBtn);
+    }
+  });
+}
+
+// ── SAVE/LOAD ────────────────────────────────────────────────────────────────
+function saveToServer() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async function() {
+    try {
+      await fetch("/data", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({chats,tasks,jobs,events,profile,prefs,speaker,server})
+      });
+    } catch(e) { console.log("save error:",e); }
+  }, 500);
+}
+
+async function loadFromServer() {
+  try {
+    var r = await fetch("/data");
+    if(!r.ok) {
+      console.log("Server data not available, using localStorage");
+      return false;
+    }
+    var data = await r.json();
+    if(data && Object.keys(data).length > 0) {
+      // Only load from server if it has MORE data than localStorage
+      if(data.chats && data.chats.length > 0) {
+        console.log("Loading",data.chats.length,"chats from server");
+        chats = data.chats;
+      } else {
+        console.log("Server has no chats, keeping localStorage chats:",chats.length);
+      }
+      if(data.tasks) tasks = data.tasks;
+      if(data.jobs) jobs = data.jobs;
+      if(data.events) events = data.events;
+      if(data.profile) { profile = data.profile; Object.assign(prefs, data.profile); localStorage.setItem("l_profile",JSON.stringify(profile)); }
+      if(data.prefs) { prefs = data.prefs; localStorage.setItem("l_prefs",JSON.stringify(prefs)); }
+      if(data.speaker) speaker = data.speaker;
+      if(data.server) server = data.server;
+      console.log("Data loaded successfully");
+      return true;
+    }
+  } catch(e) {
+    console.log("loadFromServer error:",e,"- using localStorage");
+  }
+  return false;
+}
+
+// ── THEME SYSTEM ─────────────────────────────────────────────────────────────
+var currentTheme = localStorage.getItem('l_theme') || 'purple';
+
+var themes = {
+  purple: {
+    primary: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    accent: '#ffd700',
+    bg: '#0e0a18',
+    bg2: '#161121',
+    bg3: '#1d152a',
+    name: 'Purple Gradient'
+  },
+  ocean: {
+    primary: 'linear-gradient(135deg, #667eea 0%, #4facfe 100%)',
+    accent: '#00f2fe',
+    bg: '#0a0e18',
+    bg2: '#0f1520',
+    bg3: '#141d2b',
+    name: 'Ocean Blue'
+  },
+  sunset: {
+    primary: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    accent: '#ffed4e',
+    bg: '#180a14',
+    bg2: '#1f1119',
+    bg3: '#281620',
+    name: 'Sunset Orange'
+  },
+  forest: {
+    primary: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+    accent: '#ffd700',
+    bg: '#0a1813',
+    bg2: '#0e1f18',
+    bg3: '#13261d',
+    name: 'Forest Green'
+  },
+  dark: {
+    primary: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
+    accent: '#3498db',
+    bg: '#0a0a0a',
+    bg2: '#111',
+    bg3: '#161616',
+    name: 'Dark Mode'
+  }
+};
+
+function setTheme(themeName) {
+  currentTheme = themeName;
+  localStorage.setItem('l_theme', themeName);
+  applyTheme(themeName);
+
+  // Update active button styling
+  document.querySelectorAll('.theme-btn').forEach(function(btn){
+    if(btn.dataset.theme === themeName) {
+      btn.style.border = '2px solid var(--theme-accent)';
+      btn.style.transform = 'scale(1.05)';
+    } else {
+      btn.style.border = '1px solid var(--border2)';
+      btn.style.transform = 'scale(1)';
+    }
+  });
+}
+
+function applyTheme(themeName) {
+  var theme = themes[themeName] || themes.purple;
+  document.documentElement.style.setProperty('--theme-gradient', theme.primary);
+  document.documentElement.style.setProperty('--theme-accent', theme.accent);
+  document.documentElement.style.setProperty('--bg', theme.bg);
+  document.documentElement.style.setProperty('--bg2', theme.bg2);
+  document.documentElement.style.setProperty('--bg3', theme.bg3);
+
+  // Apply gradient overlay to main area
+  var main = document.getElementById('main');
+  if(main) {
+    main.style.background = 'linear-gradient(135deg, ' + theme.bg + ' 0%, ' + theme.bg2 + ' 50%, ' + theme.bg3 + ' 100%)';
+  }
+
+  // Update body background
+  document.body.style.background = theme.bg;
+
+  console.log('[L] Theme applied:', theme.name);
+}
+
+// ── JOB SEARCH AGENT ─────────────────────────────────────────────────────────
+function toggleJobAgent() {
+  jobAgentEnabled = !jobAgentEnabled;
+  localStorage.setItem("l_job_agent", jobAgentEnabled);
+  var sw = document.getElementById("sw-job-agent");
+  if(sw) sw.classList.toggle("on", jobAgentEnabled);
+
+  if(jobAgentEnabled) {
+    console.log("[L] Job Search Agent enabled");
+    scheduleJobSearch();
+    addMsg("l", "...Job Search Agent is now active. I will search for jobs daily at " + jobAgentSettings.time + ".", null, false);
+  } else {
+    console.log("[L] Job Search Agent disabled");
+    if(jobAgentTimer) clearTimeout(jobAgentTimer);
+    addMsg("l", "...Job Search Agent deactivated.", null, false);
+  }
+}
+
+function toggleRecruiterEmails() {
+  recruiterEmailsEnabled = !recruiterEmailsEnabled;
+  localStorage.setItem("l_recruiter_emails", recruiterEmailsEnabled);
+  var sw = document.getElementById("sw-recruiter-emails");
+  if(sw) sw.classList.toggle("on", recruiterEmailsEnabled);
+
+  if(recruiterEmailsEnabled) {
+    if(!jobAgentSettings.yourEmail) {
+      alert("Please add your email in the settings below first");
+      recruiterEmailsEnabled = false;
+      localStorage.setItem("l_recruiter_emails", "false");
+      if(sw) sw.classList.remove("on");
+      return;
+    }
+    console.log("[L] Recruiter outreach enabled");
+    addMsg("l", "...Recruiter outreach enabled. When I find jobs, I'll also search for recruiter contacts and draft personalized emails for you to review before sending.", null, false);
+  } else {
+    console.log("[L] Recruiter outreach disabled");
+  }
+}
+
+function saveJobAgentSettings() {
+  jobAgentSettings.time = document.getElementById("job-search-time").value;
+  jobAgentSettings.dateFilter = document.getElementById("job-date-filter").value;
+  jobAgentSettings.keywords = document.getElementById("job-keywords").value;
+  jobAgentSettings.primaryLocation = document.getElementById("job-primary-location").value;
+  jobAgentSettings.secondaryLocation = document.getElementById("job-secondary-location").value;
+  jobAgentSettings.minSalary = document.getElementById("job-min-salary").value;
+  jobAgentSettings.yourEmail = document.getElementById("job-your-email").value;
+  localStorage.setItem("l_job_agent_settings", JSON.stringify(jobAgentSettings));
+
+  if(jobAgentEnabled) {
+    scheduleJobSearch(); // Reschedule with new settings
+  }
+}
+
+function scheduleJobSearch() {
+  if(jobAgentTimer) clearTimeout(jobAgentTimer);
+
+  var now = new Date();
+  var [hours, minutes] = jobAgentSettings.time.split(':');
+  var searchTime = new Date();
+  searchTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+  // If search time already passed today, schedule for tomorrow
+  if(searchTime <= now) {
+    searchTime.setDate(searchTime.getDate() + 1);
+  }
+
+  var msUntilSearch = searchTime - now;
+  console.log("[L] Next job search scheduled for:", searchTime.toLocaleString());
+
+  jobAgentTimer = setTimeout(function() {
+    runJobSearch();
+    // Schedule next search for tomorrow
+    setTimeout(scheduleJobSearch, 1000);
+  }, msUntilSearch);
+}
+
+async function runJobSearchNow() {
+  closeSettings();
+  addMsg("l", "...Initiating smart job search. Scanning multiple job boards and calculating match scores...", null, false);
+  await runJobSearch();
+}
+
+async function runJobSearch() {
+  console.log("[L] Running smart job search");
+  var keywords = jobAgentSettings.keywords || "React Native Developer, iOS Developer, Mobile Engineer, AI Engineer";
+  var primaryLoc = jobAgentSettings.primaryLocation || "Tampa, FL";
+  var secondaryLoc = jobAgentSettings.secondaryLocation || "Remote";
+  var dateFilter = jobAgentSettings.dateFilter || "week";
+
+  // Combine locations for search
+  var location = primaryLoc;
+  if(secondaryLoc && secondaryLoc.trim()) {
+    location = primaryLoc + ", " + secondaryLoc;
+  }
+
+  // Update last search time
+  var now = new Date().toLocaleString();
+  var lastSearchEl = document.getElementById("job-last-search");
+  if(lastSearchEl) lastSearchEl.textContent = now;
+  localStorage.setItem("l_job_last_search", now);
+
+  try {
+    // Call smart job search API
+    var response = await fetch("/search_jobs_smart", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        keywords: keywords,
+        location: location,
+        date_filter: dateFilter,
+        min_score: 30  // Lower threshold to see more results for debugging
+      })
+    });
+
+    var data = await response.json();
+
+    if(data.success && data.jobs && data.jobs.length > 0) {
+      var foundJobs = data.jobs;
+
+      // Format jobs for display with match scores
+      var jobsText = `...Job search complete. Found ${foundJobs.length} opportunities ranked by match percentage:\n\n`;
+
+      var newJobsList = [];
+      foundJobs.forEach(function(job, i) {
+        var matchColor = job.match_score >= 80 ? "🟢" : job.match_score >= 60 ? "🟡" : "⚪";
+
+        jobsText += `${matchColor} **${i+1}. ${job.title}** (${job.match_score}% match)\n`;
+        jobsText += `🏢 ${job.company} • 📍 ${job.location}\n`;
+        jobsText += `${job.description}\n`;
+        jobsText += `💼 Level: ${job.level} • 📅 Posted: ${job.posted}\n`;
+        jobsText += `🔗 Apply: ${job.url}\n\n`;
+
+        // Add to jobs list in sidebar
+        var jobObj = {
+          id: Date.now() + i,
+          company: job.company,
+          role: job.title,
+          status: "found",
+          site: extractDomain(job.url),
+          link: job.url,
+          matchScore: job.match_score,
+          posted: job.posted
+        };
+        newJobsList.push(jobObj);
+      });
+
+      // Load existing jobs and merge
+      var existingJobs = JSON.parse(localStorage.getItem("l_jobs") || "[]");
+      var mergedJobs = newJobsList.concat(existingJobs);
+
+      // Save merged jobs to localStorage
+      localStorage.setItem("l_jobs", JSON.stringify(mergedJobs));
+      renderJobs();
+
+      // Display results
+      addMsg("l", jobsText, null, false);
+
+      // Send notification
+      if("Notification" in window && Notification.permission === "granted") {
+        new Notification("L Job Search Complete", {
+          body: `Found ${foundJobs.length} jobs. Check your email for details!`,
+          icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>"
+        });
+      }
+
+    } else {
+      addMsg("l", "...Job search complete but no matches found above 30% threshold. The job boards may not have recent openings matching your criteria. Try different keywords or check back tomorrow.", null, false);
+    }
+
+  } catch(e) {
+    console.error("[L] Job search failed:", e);
+    addMsg("l", "...Job search encountered an error: " + e.message + ". Make sure the server is running.", null, false);
+  }
+}
+
+function extractDomain(url) {
+  try {
+    var domain = new URL(url).hostname;
+    return domain.replace('www.', '');
+  } catch(e) {
+    return 'Job Board';
+  }
+}
+
+async function sendEmailNotification(subject, body) {
+  try {
+    var r = await fetch("/send_notification", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({subject, body})
+    });
+    var data = await r.json();
+    if(data.status === "sent") {
+      console.log("[L] Email notification sent:", subject);
+    }
+  } catch(e) {
+    console.log("[L] Email notification failed:", e);
+  }
+}
+
+function loadJobAgentSettings() {
+  // Load settings into UI
+  document.getElementById("job-search-time").value = jobAgentSettings.time || "02:00";
+  document.getElementById("job-date-filter").value = jobAgentSettings.dateFilter || "week";
+  document.getElementById("job-keywords").value = jobAgentSettings.keywords || "";
+  document.getElementById("job-primary-location").value = jobAgentSettings.primaryLocation || "";
+  document.getElementById("job-secondary-location").value = jobAgentSettings.secondaryLocation || "";
+  if(jobAgentSettings.minSalary) {
+    document.getElementById("job-min-salary").value = jobAgentSettings.minSalary;
+  }
+
+  var sw = document.getElementById("sw-job-agent");
+  if(sw) sw.classList.toggle("on", jobAgentEnabled);
+
+  var lastSearch = localStorage.getItem("l_job_last_search");
+  if(lastSearch) {
+    var lastSearchEl = document.getElementById("job-last-search");
+    if(lastSearchEl) lastSearchEl.textContent = lastSearch;
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+function init() {
+  applyTheme(currentTheme);
+  setSpeaker(speaker);
+  loadPrefs();
+
+  // CRITICAL FIX: Load from localStorage first (instant), then sync with server
+  var localChats = localStorage.getItem("l_chats");
+  if(localChats) {
+    try {
+      chats = JSON.parse(localChats);
+      console.log("[L] Loaded", chats.length, "chats from localStorage");
+    } catch(e) {
+      console.log("[L] localStorage parse error:", e);
+    }
+  }
+
+  if(server) document.getElementById("server-input").value = server;
+  loadFromServer().then(function() {
+    loadPrefs();
+    if(server) document.getElementById("server-input").value = server;
+    if(chats.length===0) newChat(false);
+    else { cid=chats[chats.length-1].id; renderList(); renderChat(); }
+    if(window.innerWidth<=768) { sbOpen=false; document.getElementById("sidebar").classList.remove("mobile-open"); }
+    else if(window.innerWidth<900) { sbOpen=false; document.getElementById("sidebar").classList.add("collapsed"); }
+  });
+  if(document.getElementById("code-editor")) {
+    document.getElementById("code-editor").addEventListener("keydown", function(e) {
+      if(e.key==="Tab") { e.preventDefault(); var s=this.selectionStart,en=this.selectionEnd; this.value=this.value.substring(0,s)+"  "+this.value.substring(en); this.selectionStart=this.selectionEnd=s+2; }
+      updateEditorStatus();
+    });
+    document.getElementById("code-editor").addEventListener("input", updateEditorStatus);
+  }
+
+  // Add scroll listener for scroll-to-bottom button
+  var chatArea = document.getElementById("chat-area");
+  if(chatArea) {
+    chatArea.addEventListener("scroll", function() {
+      var btn = document.getElementById("scroll-down-btn");
+      if(!btn) return;
+      var isNearBottom = chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight < 100;
+      btn.classList.toggle("show", !isNearBottom);
+    });
+  }
+
+  Notification.requestPermission();
+  checkCalendarEvents();
+
+  // Initialize job search agent
+  loadJobAgentSettings();
+  if(jobAgentEnabled) {
+    console.log("[L] Job Search Agent is active");
+    scheduleJobSearch();
+  }
+}
+
+// ── SCROLL FUNCTIONS ─────────────────────────────────────────────────────────
+function scrollToBottom() {
+  var chatArea = document.getElementById("chat-area");
+  if(chatArea) {
+    chatArea.scrollTo({top: chatArea.scrollHeight, behavior: "smooth"});
+  }
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
+function toggleSidebar() {
+  sbOpen = !sbOpen;
+  var sb = document.getElementById("sidebar");
+  var ov = document.getElementById("sb-overlay");
+  if(window.innerWidth<=768) { sb.classList.toggle("mobile-open",sbOpen); sb.classList.remove("collapsed"); if(ov) ov.style.display=sbOpen?"block":"none"; }
+  else { sb.classList.toggle("collapsed",!sbOpen); }
+}
+function closeMobileSidebar() {
+  sbOpen = false;
+  document.getElementById("sidebar").classList.remove("mobile-open");
+  var ov = document.getElementById("sb-overlay");
+  if(ov) ov.style.display="none";
+}
+function showSbPanel(panel) {
+  currentSbPanel = panel;
+  ["chats","tasks","jobs","cal"].forEach(function(p) {
+    document.getElementById("snav-"+p).classList.toggle("active", p===panel);
+  });
+  document.getElementById("sb-label").classList.toggle("hidden", panel!=="chats");
+  document.getElementById("chats-list").classList.toggle("hidden", panel!=="chats");
+  ["tasks","jobs","cal"].forEach(function(p) {
+    var el = document.getElementById("sb-"+p+"-panel");
+    if(el) el.classList.toggle("active", p===panel);
+  });
+  if(panel==="tasks") renderTasks();
+  if(panel==="jobs") renderJobs();
+  if(panel==="cal") renderCal();
+}
+
+// ── CHAT ──────────────────────────────────────────────────────────────────────
+function newChat(focus) {
+  if(focus===undefined) focus=true;
+  var id = Date.now().toString();
+  chats.push({id,name:"New case",messages:[]});
+  save(); cid=id; renderList(); renderChat();
+  document.getElementById("chat-title").textContent="L - Operative";
+  if(focus) document.getElementById("txt").focus();
+  if(window.innerWidth<900&&sbOpen) toggleSidebar();
+}
+function loadChat(id) {
+  cid=id; var c=chats.find(function(x){return x.id===id;});
+  document.getElementById("chat-title").textContent=c?c.name:"L - Operative";
+  renderList(); renderChat();
+  if(window.innerWidth<900&&sbOpen) toggleSidebar();
+}
+function delChat(id,e) {
+  e.stopPropagation(); chats=chats.filter(function(c){return c.id!==id;}); save();
+  if(cid===id) { if(chats.length===0) newChat(false); else { cid=chats[chats.length-1].id; renderList(); renderChat(); } }
+  else renderList();
+}
+function clearAll() { if(!confirm("Clear all case files?")) return; chats=[]; save(); newChat(false); }
+function save() { localStorage.setItem("l_chats",JSON.stringify(chats)); saveToServer(); }
+
+function renderList() {
+  var el=document.getElementById("chats-list"); el.innerHTML="";
+  [...chats].reverse().forEach(function(c) {
+    var d=document.createElement("div"); d.className="chat-item"+(c.id===cid?" active":"");
+    d.innerHTML='<span class="chat-name">'+c.name+'</span><span class="chat-del" onclick="delChat(\''+c.id+'\',event)">x</span>';
+    d.onclick=function(e){if(!e.target.classList.contains("chat-del"))loadChat(c.id);};
+    el.appendChild(d);
+  });
+}
+
+function renderChat() {
+  var inner=document.getElementById("chat-inner"); inner.innerHTML="";
+  var c=chats.find(function(x){return x.id===cid;});
+  if(!c||c.messages.length===0){inner.appendChild(mkEmpty());return;}
+  c.messages.forEach(function(m){inner.appendChild(mkMsg(m.role,m.content,m.fi));});
+  scrollBot();
+}
+
+function mkEmpty() {
+  var d=document.createElement("div"); d.id="empty";
+  d.innerHTML='<div class="empty-l">L</div><div class="empty-t">The operative is ready</div><div class="empty-s">Ask me anything. I search the web, read and write files, apply to jobs, write resumes, manage emails, build your apps.</div><div class="sgrid"><button class="scard" onclick="suggest(\'Find me 5 React Native developer jobs posted this week\')"><div class="scard-t">Find jobs</div><div class="scard-s">Search current React Native roles</div></button><button class="scard" onclick="suggest(\'Write a tailored resume for a React Native developer role at a startup\')"><div class="scard-t">Write resume</div><div class="scard-s">Tailored for app developer roles</div></button><button class="scard" onclick="suggest(\'Draft a cold outreach email to a recruiter at a tech startup\')"><div class="scard-t">Email recruiter</div><div class="scard-s">Professional outreach message</div></button><button class="scard" onclick="suggest(\'What are you working on right now for the current case?\')"><div class="scard-t">Status update</div><div class="scard-s">What L is doing right now</div></button></div>';
+  return d;
+}
+
+function mkMsg(role,text,fi) {
+  var w=document.createElement("div"); w.className="mwrap "+role;
+  var av=document.createElement("div"); av.className="mav"; av.textContent=role==="l"?"L":"M";
+  var mc=document.createElement("div"); mc.className="mcontent";
+  var mn=document.createElement("div"); mn.className="mname"; mn.textContent=role==="l"?"L":"You";
+  var mt=document.createElement("div"); mt.className="mtext";
+  if(role==="l") {
+    mt.innerHTML=renderMarkdown(text);
+    var msgActions=document.createElement("div");
+    msgActions.style.cssText="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap";
+    var playBtn=document.createElement("button");
+    playBtn.style.cssText="background:none;border:none;color:#444;cursor:pointer;font-size:11px;padding:3px 6px;border-radius:4px;font-family:inherit;display:flex;align-items:center;gap:4px";
+    playBtn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> play';
+    playBtn.onclick=(function(t){return function(){speak(t);};})(text);
+    var cpBtn=document.createElement("button");
+    cpBtn.style.cssText="background:none;border:none;color:#444;cursor:pointer;font-size:11px;padding:3px 6px;border-radius:4px;font-family:inherit;display:flex;align-items:center;gap:4px";
+    cpBtn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> copy';
+    cpBtn.onclick=(function(t,b){return function(){navigator.clipboard.writeText(t);b.textContent="copied";setTimeout(function(){b.textContent="copy";},2000);};})(text,cpBtn);
+    msgActions.appendChild(playBtn);
+    msgActions.appendChild(cpBtn);
+    mc.appendChild(mn); mc.appendChild(mt); mc.appendChild(msgActions);
+  } else {
+    mt.textContent=text;
+    mc.appendChild(mn); mc.appendChild(mt);
+  }
+  if(fi) {
+    var fp=document.createElement("div"); fp.className="mfile";
+    if(fi.type==="image") fp.innerHTML='<img src="data:'+fi.mt+';base64,'+fi.data+'" alt="'+fi.name+'"/>';
+    else fp.innerHTML='<div class="mchip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>&nbsp;'+fi.name+'</div>';
+    mc.appendChild(fp);
+  }
+  w.appendChild(av); w.appendChild(mc); return w;
+}
+
+function addMsg(role,text,fi,sv) {
+  if(sv===undefined) sv=true;
+  var inner=document.getElementById("chat-inner");
+  var em=inner.querySelector("#empty"); if(em) em.remove();
+
+  var msgEl; // FIX: Declare here to avoid scope error
+
+  // For L's messages with code: strip code blocks and create file pills
+  var displayText = text;
+  var codeFiles = []; // Store extracted code files
+
+  if(role==="l") {
+    var hasDoc = text.toLowerCase().includes("resume") || text.toLowerCase().includes("cover letter") || text.toLowerCase().includes("readme");
+    var isResume = (text.toLowerCase().includes("work experience") || text.toLowerCase().includes("education") || text.toLowerCase().includes("professional summary")) && (text.toLowerCase().includes("resume") || text.toLowerCase().includes("skills"));
+
+    // Extract and remove code blocks from display text
+    var tparts=text.split("\x60\x60\x60");
+    if(tparts.length > 1) {
+      // Has code blocks - extract them and remove from display
+      var textParts = [];
+      for(var i=0;i<tparts.length;i++) {
+        if(i % 2 === 0) {
+          // Text part
+          textParts.push(tparts[i]);
+        } else {
+          // Code block - extract and store
+          var fnl=tparts[i].indexOf("\n");
+          var lang=fnl!==-1?tparts[i].slice(0,fnl).trim().toLowerCase():"";
+          var code=fnl!==-1?tparts[i].slice(fnl+1).trim():tparts[i].trim();
+          if(code) {
+            var extMap={html:"html",javascript:"js",js:"js",typescript:"ts",ts:"ts",jsx:"jsx",tsx:"tsx",python:"py",py:"py",swift:"swift",css:"css",json:"json",bash:"sh",shell:"sh",markdown:"md",md:"md"};
+            var ext=extMap[lang]||lang||"txt";
+            var filename = "l_code." + ext;
+            codeFiles.push({lang, code, filename, ext, isResume: isResume && (lang==="markdown"||lang==="md"||lang===""||lang==="text")});
+
+            // Auto-open first code file in editor (not HTML/resume)
+            if(codeFiles.length === 1 && lang && lang!=="html" && lang!=="markdown" && lang!=="md" && !isResume) {
+              openInEditor(code, filename);
+            }
+          }
+        }
+      }
+      displayText = textParts.join("\n\n").trim();
+    }
+
+    msgEl=mkMsg(role,displayText,fi);
+
+    // Add file pills for code files
+    if(codeFiles.length > 0) {
+      var pillsDiv=document.createElement("div");
+      pillsDiv.style.cssText="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap";
+
+      codeFiles.forEach(function(cf) {
+        var pill=document.createElement("div");
+        pill.className="mchip";
+        pill.style.cssText="cursor:pointer;transition:all .15s";
+        pill.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>&nbsp;'+cf.filename;
+
+        // Click to open in appropriate viewer
+        if(cf.lang === "html") {
+          pill.onclick = (function(code){return function(){openPortfolio(code);};})(cf.code);
+        } else if(cf.isResume) {
+          pill.onclick = (function(code){return function(){showResumeDownloadPopup(code);};})(cf.code);
+        } else {
+          pill.onclick = (function(code,fname){return function(){openInEditor(code,fname);};})(cf.code,cf.filename);
+        }
+
+        pill.onmouseenter = function(){this.style.background="var(--bg3)";};
+        pill.onmouseleave = function(){this.style.background="var(--bg2)";};
+
+        pillsDiv.appendChild(pill);
+      });
+
+      msgEl.querySelector(".mcontent").appendChild(pillsDiv);
+    }
+
+    // Add download/copy buttons
+    var dlBar=document.createElement("div");
+    dlBar.style.cssText="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap";
+
+    if(isResume&&text.indexOf("\x60\x60\x60")===-1) {
+      var dlTxt=document.createElement("button");
+      dlTxt.textContent="Download resume";
+      dlTxt.style.cssText="background:#0d2b0d;border:1px solid #1a3a1a;border-radius:6px;padding:5px 10px;font-size:11px;color:#2ecc71;cursor:pointer;font-family:inherit;font-weight:600";
+      dlTxt.onclick=(function(t){return function(){showResumeDownloadPopup(t);};})(text);
+      dlBar.appendChild(dlTxt);
+    } else if(hasDoc&&!isResume&&text.indexOf("\x60\x60\x60")===-1) {
+      var dlTxt2=document.createElement("button");
+      dlTxt2.textContent="Download .txt";
+      dlTxt2.style.cssText="background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text2);cursor:pointer;font-family:inherit";
+      dlTxt2.onclick=(function(t){return function(){downloadContent(t,"document.txt");};})(text);
+      dlBar.appendChild(dlTxt2);
+    }
+
+    var cpBtn2=document.createElement("button");
+    cpBtn2.textContent="Copy";
+    cpBtn2.style.cssText="background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text2);cursor:pointer;font-family:inherit";
+    cpBtn2.onclick=function(){navigator.clipboard.writeText(text);cpBtn2.textContent="Copied!";setTimeout(function(){cpBtn2.textContent="Copy";},2000);};
+    dlBar.appendChild(cpBtn2);
+    msgEl.querySelector(".mcontent").appendChild(dlBar);
+  } else {
+    // User message - show as is
+    msgEl=mkMsg(role,text,fi);
+  }
+  inner.appendChild(msgEl); scrollBot();
+  setTimeout(highlightCode,50);
+  if(sv) {
+    var c=chats.find(function(x){return x.id===cid;});
+    if(c) {
+      c.messages.push({role,content:text,fi});
+      if(c.name==="New case"&&text){c.name=text.slice(0,35)+(text.length>35?"...":"");document.getElementById("chat-title").textContent=c.name;}
+      save(); renderList();
+    }
+  }
+}
+
+function showTyping() {
+  var inner=document.getElementById("chat-inner");
+  var d=document.createElement("div"); d.id="tmsg"; d.className="twrap";
+  d.innerHTML='<div class="mav" style="width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:15px;font-family:Georgia,serif;color:#666;flex-shrink:0">L</div><div class="tdots"><span></span><span></span><span></span></div>';
+  inner.appendChild(d); scrollBot();
+}
+function rmTyping(){var t=document.getElementById("tmsg");if(t)t.remove();}
+function scrollBot(){document.getElementById("chat-area").scrollTop=9999999;}
+
+// ── SPEAKER ───────────────────────────────────────────────────────────────────
+function setSpeaker(m) {
+  speaker=m; localStorage.setItem("l_spk",m);
+  ["phone","google"].forEach(function(x){
+    var p=document.getElementById("pill-"+x);
+    if(p) p.classList.toggle("active",x===m);
+  });
+  console.log("[L] Speaker switched to:",m);
+}
+function saveServer(v){server=v.trim();localStorage.setItem("l_srv",server);}
+function savePref(k,v){prefs[k]=v;localStorage.setItem("l_prefs",JSON.stringify(prefs));}
+function loadPrefs(){["name","role","skills","email","linkedin","github"].forEach(function(k){var el=document.getElementById("inp-"+k);if(el&&prefs[k])el.value=prefs[k];});}
+function openSettings(){
+  var modal = document.getElementById("settings-modal");
+  modal.style.display = "flex";
+}
+function closeSettings(){
+  var modal = document.getElementById("settings-modal");
+  modal.style.display = "none";
+}
+
+// ── AUDIO ─────────────────────────────────────────────────────────────────────
+function unlockAudio(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();}
+
+function clean(t){return t.replace(/\*[^*]*\*/g,"").replace(/\*+/g,"").replace(/#{1,6}\s?/g,"").replace(/`[^`]*`/g,"").replace(/\.{3,}/g,"... ").replace(/\s+/g," ").trim();}
+function cleanText(t){
+  t=t.replace(/```[\s\S]*?```/g,"...code block omitted.");
+  t=t.replace(/`[^`]+`/g,"");
+  t=clean(t);
+  t=t.replace(/https?:\/\/[^\s]+/g,"link");
+  t=t.replace(/www\.[^\s]+/g,"link");
+  t=t.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,"email");
+  if(t.length>400) t=t.slice(0,400)+"...";
+  return t;
+}
+
+async function speak(text) {
+  if(muted||stopReq) return;
+  text=cleanText(text); if(!text) return;
+  try {
+    unlockAudio();
+    var r=await fetch("/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text}),signal:AbortSignal.timeout(20000)});
+    if(!r.ok||stopReq) return;
+    var ab=await r.arrayBuffer(); if(stopReq) return;
+    var decoded=await actx.decodeAudioData(ab); if(stopReq) return;
+    if(csrc){try{csrc.stop();}catch(e){}}
+    var source=actx.createBufferSource();
+    source.buffer=decoded; source.connect(actx.destination);
+    csrc=source; source.start(0); stopReq=false;
+  } catch(e){console.log("speak error:",e);}
+}
+
+async function castHome(textToSpeak) {
+  try {
+    var r=await fetch("/speak",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:textToSpeak}),signal:AbortSignal.timeout(25000)});
+    if(!r.ok){console.log("cast failed:",r.status);return false;}
+    return true;
+  } catch(e){console.log("castHome error:",e.message);return false;}
+}
+
+let stopController=null;
+function stopL(){
+  stopReq=true;
+  if(stopController){try{stopController.abort();}catch(e){}}
+  if(csrc){try{csrc.stop(0);}catch(e){}csrc=null;}
+  if(actx&&actx.state==="running"){actx.suspend();setTimeout(function(){if(actx)actx.resume();},100);}
+  speechSynthesis.cancel(); rmTyping();
+  document.getElementById("dot").className="";
+}
+function toggleMute(){
+  muted=!muted;
+  var waves=document.getElementById("mute-waves");
+  var btn=document.getElementById("mute-btn");
+  if(waves) waves.style.display=muted?"none":"block";
+  btn.style.color=muted?"var(--red)":"var(--text3)";
+  if(muted&&actx) actx.suspend();
+  else if(!muted&&actx) actx.resume();
+}
+
+// ── MESSAGES ──────────────────────────────────────────────────────────────────
+function buildMsgs(text,fd) {
+  // Build conversation history from current chat (last 10 messages to stay under token limit)
+  var hist=[];
+  var c=chats.find(function(x){return x.id===cid;});
+  if(c&&c.messages.length>0) {
+    var recent=c.messages.slice(-10);
+    recent.forEach(function(m){
+      if(m.role==="user") hist.push({role:"user",content:m.content});
+      else if(m.role==="l") hist.push({role:"assistant",content:m.content});
+    });
+  }
+
+  // CRITICAL FIX: If history starts with assistant, remove it
+  // API requires conversations to start with user message
+  while(hist.length > 0 && hist[0].role === "assistant") {
+    console.log("[L] Removing leading assistant message from history");
+    hist.shift(); // Remove first element if it's assistant
+  }
+
+  var pp=[];
+  if(prefs.name) pp.push("Name: "+prefs.name);
+  if(prefs.role) pp.push("Target role: "+prefs.role);
+  if(prefs.skills) pp.push("Skills: "+prefs.skills);
+  if(prefs.email) pp.push("Email: "+prefs.email);
+  if(prefs.linkedin) pp.push("LinkedIn: "+prefs.linkedin);
+  if(prefs.github) pp.push("GitHub: "+prefs.github);
+  var sys=SYS+(pp.length?"\n\nUser profile: "+pp.join(", "):"");
+  if(fd&&fd.length>0) {
+    var ca=[];
+    fd.forEach(function(f){
+      if(f.type==="image") ca.push({type:"image",source:{type:"base64",media_type:f.mt,data:f.data}});
+      else ca.push({type:"text",text:"FILE: "+f.name+"\n\n"+(f.content||"empty file")});
+    });
+    ca.push({type:"text",text:text||"Please read and analyze the above files"});
+    return{sys,msgs:[...hist,{role:"user",content:ca}]};
+  }
+  return{sys,msgs:[...hist,{role:"user",content:text}]};
+}
+
+async function askL(text,fd) {
+  stopReq=false; document.getElementById("dot").className="thinking"; showTyping();
+  try {
+    var {sys,msgs}=buildMsgs(text,fd);
+
+    // DEBUG: Log what we're sending
+    console.log("[L] Sending to API:");
+    console.log("  System prompt length:", sys.length);
+    console.log("  Messages:", msgs.length);
+    msgs.forEach(function(m, i) {
+      console.log("  ["+i+"] role:", m.role, "content length:",
+        typeof m.content === 'string' ? m.content.length : 'array');
+    });
+
+    var body=JSON.stringify({messages:msgs,system:sys});
+    // Use longer timeout for big requests like portfolio generation
+    var ctrl=new AbortController();
+    var timer=setTimeout(function(){ctrl.abort();},90000); // 90 second timeout
+    var r=await fetch("/ask",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:body,
+      signal:ctrl.signal
+    });
+    clearTimeout(timer);
+    if(!r.ok){
+      var errText=await r.text().catch(function(){return r.status;});
+      console.error("[L] Server error:", r.status, errText);
+      throw new Error("Server "+r.status+": "+errText.slice(0,100));
+    }
+    var data=await r.json();
+    var rep=data.reply||"...I encountered an issue. Please try again.";
+    rmTyping(); addMsg("l",rep); document.getElementById("dot").className="";
+    // Audio routing - ALWAYS play audio
+    console.log("[L] Audio: speaker="+speaker+", response length="+rep.length);
+    if(!muted && rep.trim()) {
+      if(speaker==="google"){
+        console.log("[L] Casting to Google Home...");
+        castHome(rep).catch(function(e){console.log("[L] Cast error:",e);});
+      } else {
+        console.log("[L] Playing on device...");
+        speak(rep); // fire async, don't await
+      }
+    }
+  } catch(e) {
+    rmTyping();
+    var errMsg=e.name==="AbortError"
+      ? "...Request timed out. The server is taking too long — try a shorter request."
+      : "..."+e.message;
+    addMsg("l",errMsg);
+    document.getElementById("dot").className="";
+    console.error("askL error:",e);
+  } finally {
+    // ALWAYS clean up loading state, even if something goes wrong
+    rmTyping();
+    document.getElementById("dot").className="";
+    stopReq=false;
+  }
+}
+
+async function sendText() {
+  unlockAudio();
+  var inp=document.getElementById("txt"); var text=inp.value.trim();
+  if(!text&&pfiles.length===0) return;
+  inp.value=""; inp.style.height="26px";
+  var files=[...pfiles]; var fi=files.length>0?files[0]:null;
+  pfiles=[]; document.getElementById("fchips").style.display="none"; document.getElementById("fchips").innerHTML="";
+  var displayText=text||(files.length+" file(s) attached");
+  addMsg("user",displayText,fi);
+  var prompt=text||(files.length>0?"Please read, analyze and summarize these file(s) in detail":"");
+  await askL(prompt,files.length>0?files:null);
+}
+
+function suggest(t){document.getElementById("txt").value=t;sendText();}
+function handleKey(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendText();}}
+function autoResize(el){el.style.height="26px";el.style.height=Math.min(el.scrollHeight,200)+"px";}
+
+// ── FILES ─────────────────────────────────────────────────────────────────────
+async function handleFiles(fl) {
+  var fileArr=Array.from(fl);
+  for(var i=0;i<fileArr.length;i++) {
+    var f=fileArr[i];
+    if(f.type.startsWith("image/")) {
+      await new Promise(function(res,rej){
+        var r=new FileReader();
+        r.onload=function(e){var d=e.target.result.split(",")[1];pfiles.push({type:"image",name:f.name,mt:f.type,data:d});addChip(f.name);res();};
+        r.onerror=rej; r.readAsDataURL(f);
+      });
+    } else if(f.name.endsWith(".pdf")||f.type==="application/pdf") {
+      try {
+        addChip(f.name+" (reading...)");
+        var fd2=new FormData(); fd2.append("file",f);
+        var r2=await fetch("/read_pdf",{method:"POST",body:fd2});
+        var data2=await r2.json();
+        pfiles.push({type:"text",name:f.name,content:data2.text||"Could not read PDF"});
+        var chips=document.getElementById("fchips");
+        var last=chips.lastChild; if(last){var sp=last.querySelector("span");if(sp)sp.textContent=f.name;}
+      } catch(e2) {
+        pfiles.push({type:"text",name:f.name,content:"PDF reading failed. Please paste content directly."});
+        addChip(f.name);
+      }
+    } else {
+      await new Promise(function(res){
+        var r3=new FileReader();
+        r3.onload=function(e){pfiles.push({type:"text",name:f.name,content:e.target.result||""});addChip(f.name);res();};
+        r3.onerror=function(){pfiles.push({type:"text",name:f.name,content:"Could not read file"});addChip(f.name);res();};
+        r3.readAsText(f);
+      });
+    }
+  }
+}
+
+function addChip(name){var ch=document.getElementById("fchips");ch.style.display="flex";var c=document.createElement("div");c.className="fchip";c.innerHTML='<span>'+name+'</span><span class="frem" onclick="remFile(\''+name+'\',this)">x</span>';ch.appendChild(c);}
+function remFile(name,el){pfiles=pfiles.filter(function(f){return f.name!==name;});el.parentElement.remove();if(pfiles.length===0)document.getElementById("fchips").style.display="none";}
+
+// ── MIC ───────────────────────────────────────────────────────────────────────
+function toggleMic(){
+  unlockAudio();
+  if(!("webkitSpeechRecognition"in window||"SpeechRecognition"in window)){addMsg("l","...Speech recognition not available in this browser.");return;}
+  if(recog){recognition.stop();return;}
+  recognition=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
+  recognition.lang="en-US"; recognition.interimResults=false;
+  recognition.onstart=function(){recog=true;document.getElementById("mic-btn").classList.add("rec");};
+  recognition.onresult=async function(e){var t=e.results[0][0].transcript;addMsg("user",t);await askL(t,null);};
+  recognition.onerror=function(){recog=false;document.getElementById("mic-btn").classList.remove("rec");};
+  recognition.onend=function(){recog=false;document.getElementById("mic-btn").classList.remove("rec");};
+  recognition.start();
+}
+
+// ── TASKS ─────────────────────────────────────────────────────────────────────
+function saveTasks(){localStorage.setItem("l_tasks",JSON.stringify(tasks));saveToServer();}
+function saveJobs(){localStorage.setItem("l_jobs",JSON.stringify(jobs));saveToServer();}
+function saveEvents(){localStorage.setItem("l_events",JSON.stringify(events));saveToServer();}
+function openAddTask(){document.getElementById("task-modal").classList.add("open");document.getElementById("task-name-inp").focus();}
+function openAddJob(){document.getElementById("job-modal").classList.add("open");document.getElementById("job-company-inp").focus();}
+function openAddEvent(){document.getElementById("event-date-inp").value=new Date().toISOString().split("T")[0];document.getElementById("event-modal").classList.add("open");document.getElementById("event-name-inp").focus();}
+function closeModal(id){document.getElementById(id).classList.remove("open");}
+function saveTask(){var name=document.getElementById("task-name-inp").value.trim();if(!name)return;tasks.push({id:Date.now().toString(),name,status:document.getElementById("task-status-inp").value,notes:document.getElementById("task-notes-inp").value,created:new Date().toISOString()});saveTasks();renderTasks();closeModal("task-modal");document.getElementById("task-name-inp").value="";document.getElementById("task-notes-inp").value="";}
+function saveJob(){var company=document.getElementById("job-company-inp").value.trim();if(!company)return;jobs.push({id:Date.now().toString(),company,role:document.getElementById("job-role-inp").value,site:document.getElementById("job-site-inp").value,link:document.getElementById("job-link-inp").value,status:document.getElementById("job-status-inp").value,date:new Date().toISOString()});saveJobs();renderJobs();closeModal("job-modal");["company","role","site","link"].forEach(function(f){document.getElementById("job-"+f+"-inp").value="";});}
+function saveEvent(){var name=document.getElementById("event-name-inp").value.trim();if(!name)return;events.push({id:Date.now().toString(),name,date:document.getElementById("event-date-inp").value,time:document.getElementById("event-time-inp").value,recur:document.getElementById("event-recur-inp").value,notes:document.getElementById("event-notes-inp").value});saveEvents();renderCal();closeModal("event-modal");document.getElementById("event-name-inp").value="";document.getElementById("event-notes-inp").value="";}
+
+function renderTasks(){var el=document.getElementById("tasks-list");if(!el)return;el.innerHTML="";if(tasks.length===0){el.innerHTML='<div style="padding:20px 12px;font-size:12px;color:var(--text3);text-align:center">No tasks yet.<br/>Add one above.</div>';return;}[...tasks].reverse().forEach(function(t){var d=document.createElement("div");d.className="task-item";d.innerHTML='<div class="task-dot '+t.status+'"></div><div class="task-info"><div class="task-name">'+t.name+'</div><div class="task-time">'+new Date(t.created).toLocaleDateString()+'</div></div><span class="task-del" onclick="delTask(\''+t.id+'\')">x</span>';el.appendChild(d);});}
+function delTask(id){tasks=tasks.filter(function(t){return t.id!==id;});saveTasks();renderTasks();}
+
+function renderJobs(){var el=document.getElementById("jobs-list");if(!el)return;el.innerHTML="";if(jobs.length===0){el.innerHTML='<div style="padding:20px 12px;font-size:12px;color:var(--text3);text-align:center">No jobs tracked yet.</div>';return;}[...jobs].reverse().forEach(function(j){var d=document.createElement("div");d.className="job-item";d.innerHTML='<div class="job-company">'+j.company+'</div><div class="job-role">'+(j.role||"")+'</div><div class="job-bottom"><span class="job-status '+j.status+'">'+j.status+'</span><span class="job-date">'+new Date(j.date).toLocaleDateString()+'</span></div>';if(j.link)d.onclick=function(){window.open(j.link,"_blank");};el.appendChild(d);});}
+
+function renderCal(){
+  var title=document.getElementById("cal-title");var grid=document.getElementById("cal-grid");var eventsEl=document.getElementById("cal-events");
+  if(!title||!grid||!eventsEl) return;
+  var year=calDate.getFullYear();var month=calDate.getMonth();
+  title.textContent=calDate.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+  var days=["Su","Mo","Tu","We","Th","Fr","Sa"];var firstDay=new Date(year,month,1).getDay();var daysInMonth=new Date(year,month+1,0).getDate();var today=new Date();
+  grid.innerHTML=days.map(function(d){return'<div class="cal-day-hdr">'+d+'</div>';}).join("");
+  for(var i=0;i<firstDay;i++) grid.innerHTML+='<div class="cal-day empty"></div>';
+  for(var d=1;d<=daysInMonth;d++){var dateStr=year+"-"+String(month+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");var isToday=today.getDate()===d&&today.getMonth()===month&&today.getFullYear()===year;var hasEvent=events.some(function(e){return e.date===dateStr;});grid.innerHTML+='<div class="cal-day'+(isToday?" today":"")+(hasEvent?" has-task":"")+'" onclick="showDayEvents(\''+dateStr+'\')">'+d+'</div>';}
+  eventsEl.innerHTML="";
+  var todayStr=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+  var toShow=events.filter(function(e){return e.date>=todayStr;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,5);
+  if(toShow.length===0){eventsEl.innerHTML='<div style="padding:12px;font-size:12px;color:var(--text3);text-align:center">No upcoming events.<br/>Add one above.</div>';return;}
+  toShow.forEach(function(e){var d=document.createElement("div");d.className="cal-event";d.innerHTML='<div class="cal-event-name">'+e.name+'</div><div class="cal-event-time">'+e.date+(e.time?" at "+e.time:"")+'</div>'+(e.recur&&e.recur!=="none"?'<div class="cal-event-recur">Recurring: '+e.recur+'</div>':"");d.onclick=function(){if(e.notes)suggest("L for the task '"+e.name+"': "+e.notes);};eventsEl.appendChild(d);});
+}
+function showDayEvents(dateStr){var dayEvents=events.filter(function(e){return e.date===dateStr;});if(dayEvents.length===0){openAddEvent();document.getElementById("event-date-inp").value=dateStr;return;}addMsg("l","...Events on "+dateStr+": "+dayEvents.map(function(e){return e.name;}).join(", "),null,false);}
+function calPrev(){calDate.setMonth(calDate.getMonth()-1);renderCal();}
+function calNext(){calDate.setMonth(calDate.getMonth()+1);renderCal();}
+
+function notifyUser(title,body){if(!("Notification"in window))return;if(Notification.permission==="granted")new Notification(title,{body,icon:""});else if(Notification.permission!=="denied")Notification.requestPermission().then(function(p){if(p==="granted")new Notification(title,{body});});}
+function checkCalendarEvents(){var now=new Date();var todayStr=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");var currentTime=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");events.forEach(function(e){if(e.date===todayStr&&e.time===currentTime&&e.notes){notifyUser("L scheduled task:",e.name);suggest("L please complete this scheduled task: "+e.name+". Instructions: "+e.notes);}});setTimeout(checkCalendarEvents,60000);}
+
+// ── PROFILE ───────────────────────────────────────────────────────────────────
+function openProfile(){
+  console.log("[L] openProfile() called");
+  loadProfileFields();
+  var modal = document.getElementById("profile-modal");
+  console.log("[L] Modal element:", modal);
+  if(modal) {
+    console.log("[L] Setting display to flex");
+    modal.style.display = "flex";
+    console.log("[L] Display after set:", modal.style.display);
+  } else {
+    console.error("[L] profile-modal element not found!");
+  }
+}
+function closeProfile(){
+  var modal = document.getElementById("profile-modal");
+  modal.style.display = "none";
+}
+function saveProfField(key,val){profile[key]=val;localStorage.setItem("l_profile",JSON.stringify(profile));prefs[key]=val;localStorage.setItem("l_prefs",JSON.stringify(prefs));saveToServer();}
+function loadProfileFields(){["name","role","email","phone","linkedin","github","skills","experience","education","projects","bio"].forEach(function(k){var el=document.getElementById("prof-"+k);if(el&&profile[k])el.value=profile[k];});}
+function saveProfileAndClose(){["name","role","email","phone","linkedin","github","skills","experience","education","projects","bio"].forEach(function(k){var el=document.getElementById("prof-"+k);if(el&&el.value.trim())saveProfField(k,el.value.trim());});saveToServer();var btn=event.target;btn.textContent="Saved!";btn.style.background="#2ecc71";setTimeout(function(){btn.textContent="Save profile";btn.style.background="#fff";},2000);}
+
+function getFullProfile(){var parts=[];if(profile.name)parts.push("Name: "+profile.name);if(profile.role)parts.push("Target role: "+profile.role);if(profile.email)parts.push("Email: "+profile.email);if(profile.phone)parts.push("Phone: "+profile.phone);if(profile.linkedin)parts.push("LinkedIn: "+profile.linkedin);if(profile.github)parts.push("GitHub: "+profile.github);if(profile.skills)parts.push("Skills: "+profile.skills);if(profile.experience)parts.push("Experience: "+profile.experience);if(profile.education)parts.push("Education: "+profile.education);if(profile.projects)parts.push("Apps/Projects: "+profile.projects);if(profile.bio)parts.push("Bio: "+profile.bio);if(resumeContent)parts.push("Resume content: "+resumeContent.slice(0,2000));return parts.join("\n");}
+function getProjectsSummary(){return projects.map(function(p){return"Project: "+p.name+" ("+p.fileCount+" files)";}).join(", ");}
+
+function saveProject(proj){var existing=projects.findIndex(function(p){return p.name===proj.name;});if(existing!==-1)projects[existing]=proj;else projects.push(proj);localStorage.setItem("l_projects",JSON.stringify(projects));saveToServer();addMsg("l","...Project '"+proj.name+"' saved to your profile. "+proj.fileCount+" files indexed.",null,false);}
+
+async function readProjectFolder(){
+  var path=document.getElementById("project-path-inp").value.trim();
+  if(!path){alert("Enter a folder path first");return;}
+  var status=document.getElementById("project-status");
+  status.textContent="Reading folder...";status.style.color="var(--amber)";
+  try{
+    var r=await fetch("/read_project",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({path})});
+    var data=await r.json();
+    if(data.error){status.textContent=data.error;status.style.color="var(--red)";return;}
+    projectFilesContent=data.files;
+    status.textContent=data.count+" files read from "+path;status.style.color="var(--green)";
+    closeProfile();
+    var fileContents=data.files.slice(0,15).map(function(f){return"=== "+f.name+" ===\n"+f.content;}).join("\n\n");
+    var projectName=path.split("/").pop();
+    saveProject({name:projectName,path,fileCount:data.files.length,files:data.files.slice(0,15)});
+    suggest("I have given you access to my project folder: "+path+". The server has read "+data.count+" files. Here are the key files:\n\n"+fileContents+"\n\nPlease analyze this codebase thoroughly - what does this app do, what is the tech stack, key features, and give me a portfolio description.");
+  }catch(e){status.textContent="Error: "+e.message;status.style.color="var(--red)";}
+}
+
+function uploadResume(input){
+  var file=input.files[0];if(!file)return;
+  if(file.type==="application/pdf"||file.name.endsWith(".pdf")){
+    var fd2=new FormData();fd2.append("file",file);
+    document.getElementById("resume-label").textContent="Reading "+file.name+"...";
+    fetch("/read_pdf",{method:"POST",body:fd2}).then(function(r){return r.json();}).then(function(data){
+      resumeContent=data.text||"";
+      localStorage.setItem("l_resume",resumeContent);
+      document.getElementById("resume-label").textContent="✓ "+file.name;
+      // Extract basic info from resume and auto-populate profile fields
+      autoPopulateFromResume(resumeContent);
+      console.log("[L] Resume uploaded and saved");
+    }).catch(function(e){document.getElementById("resume-label").textContent="Error: "+e.message;});
+  } else {
+    var reader=new FileReader();
+    reader.onload=function(e){
+      resumeContent=e.target.result;
+      localStorage.setItem("l_resume",resumeContent);
+      document.getElementById("resume-label").textContent="✓ "+file.name;
+      autoPopulateFromResume(resumeContent);
+      console.log("[L] Resume uploaded and saved");
+    };
+    reader.readAsText(file);
+  }
+}
+
+function autoPopulateFromResume(text){
+  // Simple extraction - looks for common patterns
+  var emailMatch=text.match(/[\w\.-]+@[\w\.-]+\.\w+/);
+  var phoneMatch=text.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+  var linkedinMatch=text.match(/linkedin\.com\/in\/[\w-]+/i);
+  var githubMatch=text.match(/github\.com\/[\w-]+/i);
+
+  if(emailMatch&&!profile.email){saveProfField('email',emailMatch[0]);document.getElementById('prof-email').value=emailMatch[0];}
+  if(phoneMatch&&!profile.phone){saveProfField('phone',phoneMatch[0]);document.getElementById('prof-phone').value=phoneMatch[0];}
+  if(linkedinMatch&&!profile.linkedin){saveProfField('linkedin',linkedinMatch[0]);document.getElementById('prof-linkedin').value=linkedinMatch[0];}
+  if(githubMatch&&!profile.github){saveProfField('github',githubMatch[0]);document.getElementById('prof-github').value=githubMatch[0];}
+}
+
+
+function generatePDFResume(){var prof=getFullProfile();var projSummary=getProjectsSummary();showSbPanel("chats");suggest("GENERATE A COMPLETE RESUME RIGHT NOW IN MARKDOWN FORMAT.\n\nDO NOT acknowledge this request. DO NOT say you will help. IMMEDIATELY output the full resume as markdown text.\n\nREQUIRED SECTIONS:\n# [Full Name]\n[Email] | [Phone] | [LinkedIn] | [GitHub]\n\n## Professional Summary\n2-3 sentences highlighting React Native/mobile development expertise\n\n## Technical Skills\nReact Native, Expo, TypeScript, JavaScript, Python, iOS development, Firebase, API integration\n\n## Work Experience\n[Job Title] | [Company] | [Dates]\n• Achievement with metrics\n• Achievement with metrics\n• Achievement with metrics\n\n## Education\n[Degree] | [School] | [Year]\n\n## Projects\n"+( projSummary||"ThyShift - Workforce management app\nHungry Critters - Mobile game")+"\n\nMY PROFILE DATA:\n"+prof+"\n\nOUTPUT THE COMPLETE RESUME NOW AS PLAIN MARKDOWN TEXT. START WITH # and my name.");}
+function buildPortfolioWebsite(){var prof=getFullProfile();var projSummary=getProjectsSummary();showSbPanel("chats");suggest("GENERATE A COMPLETE SINGLE-FILE HTML PORTFOLIO WEBSITE RIGHT NOW.\n\nDO NOT acknowledge. DO NOT explain. IMMEDIATELY output the COMPLETE HTML code in a ```html code block.\n\nREQUIRED STRUCTURE:\n<!DOCTYPE html>\n<html>\n<head>\n  <title>[Name] - Portfolio</title>\n  <style>\n    /* Bold gradient design with animations */\n    /* Mobile responsive */\n    /* Modern, colorful, professional */\n  </style>\n</head>\n<body>\n  <!-- Animated hero with name and title -->\n  <!-- About me section -->\n  <!-- Skills with visual bars -->\n  <!-- Projects cards with images -->\n  <!-- Contact links -->\n</body>\n</html>\n\nMY DATA:\n"+prof+"\n\nPROJECTS:\n"+(projSummary||"ThyShift - Workforce management app\nHungry Critters - Mobile game")+"\n\nOUTPUT THE COMPLETE HTML FILE NOW. START WITH <!DOCTYPE html>. Include ALL sections fully written out. NO placeholders. COMPLETE working HTML ready to deploy.");}
+function buildGitHubReadme(){
+  var prof=getFullProfile();
+  if(!prof || prof.length < 50) {
+    alert("Please fill out your profile first (Settings → Profile & portfolio)");
+    openProfile();
+    return;
+  }
+  showSbPanel("chats");
+  suggest("GENERATE A COMPLETE GITHUB PROFILE README.MD RIGHT NOW.\n\nDO NOT acknowledge. IMMEDIATELY output complete markdown with:\n- Header with my name\n- Skills badges (shields.io format)\n- Project showcases with descriptions\n- Contact links\n\nMY PROFILE:\n"+prof+"\n\nOUTPUT COMPLETE README.MD NOW AS MARKDOWN TEXT.");
+}
+function autoApplyJobs(){
+  var prof=getFullProfile();
+  if(!prof || prof.length < 50) {
+    alert("Please fill out your profile first (Settings → Profile & portfolio)");
+    openProfile();
+    return;
+  }
+  showSbPanel("chats");
+  suggest("SEARCH THE WEB RIGHT NOW for the 5 BEST React Native developer jobs posted THIS WEEK on LinkedIn, Wellfound, and startup job boards.\n\nFor EACH job provide:\n1. Company name\n2. Role title\n3. Direct application link\n4. Skills match percentage\n5. Tailored 50-word cover letter paragraph\n\nMY PROFILE:\n"+prof+"\n\nSTART SEARCHING NOW. OUTPUT RESULTS IMMEDIATELY.");
+}
+function writeRecruiterEmail(){
+  var prof=getFullProfile();
+  if(!prof || prof.length < 50) {
+    alert("Please fill out your profile first (Settings → Profile & portfolio)");
+    openProfile();
+    return;
+  }
+  showSbPanel("chats");
+  suggest("WRITE 3 COMPLETE COLD OUTREACH EMAILS TO TECH STARTUP RECRUITERS RIGHT NOW.\n\nNO acknowledgment. IMMEDIATELY output:\n\nEMAIL 1 - CASUAL TONE (under 150 words)\nEMAIL 2 - PROFESSIONAL TONE (under 150 words)  \nEMAIL 3 - VALUE-FOCUSED (under 150 words)\n\nAll about React Native developer roles.\n\nMY PROFILE:\n"+prof+"\n\nOUTPUT ALL 3 EMAILS NOW.");
+}
+
+// ── DOWNLOADS ─────────────────────────────────────────────────────────────────
+
+function toggleEditor(){editorOpen=!editorOpen;var panel=document.getElementById("editor-panel");panel.classList.toggle("open",editorOpen);document.getElementById("main").style.marginRight=editorOpen?"50%":"0";}
+function closeEditor(){editorOpen=false;document.getElementById("editor-panel").classList.remove("open");document.getElementById("main").style.marginRight="0";}
+function openInEditor(code,filename){
+  console.log("[L] Opening in editor:",filename);
+  filename=filename||"untitled.js";
+  editorFiles[filename]=code;
+  activeEditorFile=filename;
+  renderEditorTabs();
+  renderFileTree();
+  var editor=document.getElementById("code-editor");
+  if(editor) {
+    editor.value=code;
+    updateEditorStatus();
+  }
+  if(!editorOpen) {
+    console.log("[L] Opening editor panel");
+    toggleEditor();
+  }
+  // Ensure editor panel is visible
+  var panel=document.getElementById("editor-panel");
+  if(panel && !panel.classList.contains("open")) {
+    panel.classList.add("open");
+    editorOpen=true;
+    document.getElementById("main").style.marginRight="50%";
+  }
+}
+function renderEditorTabs(){var tabs=document.getElementById("editor-tabs");tabs.innerHTML="";Object.keys(editorFiles).forEach(function(name){var tab=document.createElement("div");tab.className="etab"+(name===activeEditorFile?" active":"");tab.innerHTML='<span onclick="switchEditorFile(\''+name+'\')">'+name+'</span><span class="etab-close" onclick="closeEditorFile(\''+name+'\')">x</span>';tabs.appendChild(tab);});}
+function switchEditorFile(name){if(activeEditorFile)editorFiles[activeEditorFile]=document.getElementById("code-editor").value;activeEditorFile=name;document.getElementById("code-editor").value=editorFiles[name]||"";renderEditorTabs();updateEditorStatus();}
+function closeEditorFile(name){delete editorFiles[name];if(activeEditorFile===name){var remaining=Object.keys(editorFiles);activeEditorFile=remaining.length>0?remaining[0]:null;document.getElementById("code-editor").value=activeEditorFile?editorFiles[activeEditorFile]:"";}renderEditorTabs();renderFileTree();}
+function newEditorFile(){var name=prompt("File name:","untitled.js");if(!name)return;editorFiles[name]="";activeEditorFile=name;renderEditorTabs();renderFileTree();document.getElementById("code-editor").value="";document.getElementById("code-editor").focus();}
+function renderFileTree(){var tree=document.getElementById("tree-items");tree.innerHTML="";Object.keys(editorFiles).forEach(function(name){var item=document.createElement("div");item.className="tree-item"+(name===activeEditorFile?" active":"");var ext=name.split(".").pop();var icons={js:"JS",jsx:"JSX",ts:"TS",tsx:"TSX",py:"PY",json:"{}",html:"<>",css:"CSS",md:"MD",swift:"SW"};var badge=icons[ext]||"F";item.innerHTML='<span style="font-size:9px;color:var(--text3);font-family:monospace;min-width:20px">'+badge+'</span><span onclick="switchEditorFile(\''+name+'\')" style="flex:1">'+name+'</span>';tree.appendChild(item);});}
+function loadFilesIntoTree(files){Array.from(files).forEach(function(file){var reader=new FileReader();reader.onload=function(e){editorFiles[file.name]=e.target.result;if(!activeEditorFile)activeEditorFile=file.name;renderEditorTabs();renderFileTree();if(file.name===activeEditorFile)document.getElementById("code-editor").value=e.target.result;updateEditorStatus();};reader.readAsText(file);});}
+function updateEditorStatus(){var code=document.getElementById("code-editor").value;var name=activeEditorFile||"";var ext=name.split(".").pop();var langs={js:"JavaScript",jsx:"React JSX",ts:"TypeScript",tsx:"React TSX",py:"Python",html:"HTML",css:"CSS",json:"JSON",md:"Markdown",swift:"Swift"};document.getElementById("editor-lang").textContent=langs[ext]||"Plain text";document.getElementById("editor-chars").textContent=code.length+" chars";}
+function saveCodeFile(){
+  if(!activeEditorFile)return;
+  editorFiles[activeEditorFile]=document.getElementById("code-editor").value;
+
+  // Show "Saved!" feedback
+  var saveBtn=event.target;
+  var originalText=saveBtn.textContent;
+  saveBtn.textContent="✓ Saved!";
+  saveBtn.style.background="#2ecc71";
+  setTimeout(function(){
+    saveBtn.textContent=originalText;
+    saveBtn.style.background="";
+  },2000);
+
+  // Download file
+  var blob=new Blob([editorFiles[activeEditorFile]],{type:"text/plain"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");
+  a.href=url;
+  a.download=activeEditorFile;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function runCode(){var code=document.getElementById("code-editor").value;var output=document.getElementById("run-output");output.classList.add("open");output.textContent="";var ext=(activeEditorFile||"").split(".").pop();if(ext==="py"){output.textContent="...Python execution requires running on your Mac Terminal.\nCopy the code and run: python3 filename.py";return;}var logs=[];var fakeConsole={log:function(){var args=Array.from(arguments);logs.push(args.map(function(x){return typeof x==="object"?JSON.stringify(x,null,2):String(x);}).join(" "));},error:function(){logs.push("ERROR: "+Array.from(arguments).join(" "));},warn:function(){logs.push("WARN: "+Array.from(arguments).join(" "));}};try{var fn=new Function("console",code);fn(fakeConsole);output.textContent=logs.length>0?logs.join("\n"):"Ran successfully (no output)";}catch(e){output.textContent="Error: "+e.message;output.style.color="var(--red)";}}
+function askLAboutCode(){var code=document.getElementById("code-editor").value;if(!code.trim())return;var name=activeEditorFile||"this file";closeEditor();suggest("Please review this code from "+name+" and tell me: any bugs, improvements, and what it does.\n\n```\n"+code.slice(0,3000)+"\n```");}
+
+// ── START ─────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
