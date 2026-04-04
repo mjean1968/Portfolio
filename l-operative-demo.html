@@ -1651,7 +1651,7 @@ async function speak(text) {
   text=cleanText(text); if(!text) return;
   try {
     unlockAudio();
-    var r=await fetch("/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text}),signal:AbortSignal.timeout(20000)});
+    var r=await fetch("/api/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text}),signal:AbortSignal.timeout(20000)});
     if(!r.ok||stopReq) return;
     var ab=await r.arrayBuffer(); if(stopReq) return;
     var decoded=await actx.decodeAudioData(ab); if(stopReq) return;
@@ -1747,7 +1747,7 @@ async function askL(text,fd) {
     // Use longer timeout for big requests like portfolio generation
     var ctrl=new AbortController();
     var timer=setTimeout(function(){ctrl.abort();},90000); // 90 second timeout
-    var r=await fetch("/ask",{
+    var r=await fetch("/api/ask",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:body,

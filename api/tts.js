@@ -10,6 +10,11 @@ export default async function handler(req) {
     return new Response(JSON.stringify({ error: "Missing text" }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) {
+    return new Response(JSON.stringify({ error: "ELEVENLABS_API_KEY not set" }), { status: 500, headers: { "Content-Type": "application/json" } });
+  }
+
   const voiceId = process.env.ELEVENLABS_VOICE_ID || "fzs8sFDQ1CaHEz2mW45U";
 
   try {
@@ -17,7 +22,7 @@ export default async function handler(req) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "xi-api-key": process.env.ELEVENLABS_API_KEY,
+        "xi-api-key": apiKey,
       },
       body: JSON.stringify({
         text,
@@ -27,7 +32,8 @@ export default async function handler(req) {
     });
 
     if (!response.ok) {
-      return new Response(JSON.stringify({ error: "TTS failed" }), { status: 500, headers: { "Content-Type": "application/json" } });
+      const errText = await response.text();
+      return new Response(JSON.stringify({ error: `ElevenLabs ${response.status}: ${errText}` }), { status: 500, headers: { "Content-Type": "application/json" } });
     }
 
     const buffer = await response.arrayBuffer();
