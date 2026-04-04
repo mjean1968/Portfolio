@@ -1652,14 +1652,24 @@ async function speak(text) {
   try {
     unlockAudio();
     var r=await fetch("/api/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text}),signal:AbortSignal.timeout(20000)});
-    if(!r.ok||stopReq) return;
+    if(!r.ok||stopReq) { fallbackSpeak(text); return; }
     var ab=await r.arrayBuffer(); if(stopReq) return;
     var decoded=await actx.decodeAudioData(ab); if(stopReq) return;
     if(csrc){try{csrc.stop();}catch(e){}}
     var source=actx.createBufferSource();
     source.buffer=decoded; source.connect(actx.destination);
     csrc=source; source.start(0); stopReq=false;
-  } catch(e){console.log("speak error:",e);}
+  } catch(e){console.log("speak error:",e); fallbackSpeak(text);}
+}
+function fallbackSpeak(text) {
+  if(stopReq||muted) return;
+  speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  u.rate=0.9; u.pitch=0.85; u.volume=1;
+  var voices=speechSynthesis.getVoices();
+  var lv=voices.find(function(v){return v.name.includes("Daniel")||v.name.includes("Google UK English Male")||v.lang==="en-GB";});
+  if(lv) u.voice=lv;
+  speechSynthesis.speak(u);
 }
 
 async function castHome(textToSpeak) {
