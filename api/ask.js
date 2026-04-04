@@ -1,14 +1,39 @@
 export const config = { runtime: "edge" };
 
+// Simple in-memory rate limiting per IP (resets on cold start)
+const rateMap = new Map();
+const RATE_LIMIT = 30; // max requests per window
+const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
+
+function checkRate(ip) {
+  const now = Date.now();
+  const entry = rateMap.get(ip);
+  if (!entry || now - entry.start > RATE_WINDOW) {
+    rateMap.set(ip, { start: now, count: 1 });
+    return true;
+  }
+  entry.count++;
+  return entry.count <= RATE_LIMIT;
+}
+
 export default async function handler(req) {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: { "Content-Type": "application/json" } });
+  }
+
+  // Rate limit by IP
+  const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+  if (!checkRate(ip)) {
+    return new Response(JSON.stringify({ error: "...Rate limited. Please try again later." }), { status: 429, headers: { "Content-Type": "application/json" } });
   }
 
   const { messages, system } = await req.json();
   if (!messages) {
     return new Response(JSON.stringify({ error: "Missing messages" }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
+
+  // Cap conversation length to prevent abuse
+  const trimmedMessages = messages.slice(-20);
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -20,9 +45,9 @@ export default async function handler(req) {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 2048,
-        system: system || "You are L Lawliet, the world's greatest detective, now a full autonomous AI operative. You speak in a calm, analytical, slightly eccentric tone.",
-        messages,
+        max_tokens: 1024,
+        system: system || "You are L, Merlin Jean's AI portfolio assistant.",
+        messages: trimmedMessages,
       }),
     });
 
