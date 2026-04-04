@@ -1,8 +1,14 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+export const config = { runtime: "edge" };
 
-  const { text } = req.body;
-  if (!text) return res.status(400).json({ error: "Missing text" });
+export default async function handler(req) {
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: { "Content-Type": "application/json" } });
+  }
+
+  const { text } = await req.json();
+  if (!text) {
+    return new Response(JSON.stringify({ error: "Missing text" }), { status: 400, headers: { "Content-Type": "application/json" } });
+  }
 
   const voiceId = process.env.ELEVENLABS_VOICE_ID || "fzs8sFDQ1CaHEz2mW45U";
 
@@ -20,12 +26,13 @@ export default async function handler(req, res) {
       }),
     });
 
-    if (!response.ok) return res.status(500).json({ error: "TTS failed" });
+    if (!response.ok) {
+      return new Response(JSON.stringify({ error: "TTS failed" }), { status: 500, headers: { "Content-Type": "application/json" } });
+    }
 
     const buffer = await response.arrayBuffer();
-    res.setHeader("Content-Type", "audio/mpeg");
-    res.status(200).send(Buffer.from(buffer));
+    return new Response(buffer, { status: 200, headers: { "Content-Type": "audio/mpeg" } });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

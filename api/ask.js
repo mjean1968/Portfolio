@@ -1,8 +1,14 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+export const config = { runtime: "edge" };
 
-  const { messages, system } = req.body;
-  if (!messages) return res.status(400).json({ error: "Missing messages" });
+export default async function handler(req) {
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: { "Content-Type": "application/json" } });
+  }
+
+  const { messages, system } = await req.json();
+  if (!messages) {
+    return new Response(JSON.stringify({ error: "Missing messages" }), { status: 400, headers: { "Content-Type": "application/json" } });
+  }
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -21,11 +27,13 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    if (data.error) return res.status(500).json({ error: data.error.message });
+    if (data.error) {
+      return new Response(JSON.stringify({ error: data.error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
+    }
 
     const reply = data.content?.[0]?.text || "...no response.";
-    res.status(200).json({ reply });
+    return new Response(JSON.stringify({ reply }), { status: 200, headers: { "Content-Type": "application/json" } });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
